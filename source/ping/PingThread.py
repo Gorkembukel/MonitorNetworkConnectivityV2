@@ -66,7 +66,7 @@ class PingThread(threading.Thread):
                         
                         rtt = result.avg_rtt 
                         
-                        self.stats.add_result(rtt, time.time() + 10800) #    istanbula göre UTC 3
+                        self.stats.add_result(rtt, time.time() + 10800, payloadSize = self.kwargs["payload_size"] +42) #    istanbula göre UTC 3.    +42 header için
                         
                         #ses için
            

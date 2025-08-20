@@ -24,7 +24,8 @@ dict_of_data_keys = {# buradaki keyler tablodaki sütun başlıkları için kull
             "last result": "",
             "start time": "",
             "rate of thread":"",
-            "avg rate of send ping in seconds":""
+            "avg rate of send ping in seconds":"",
+            "send total packet size":""
         }
 
 def get_data_keys():
@@ -43,6 +44,10 @@ class PingStats:
         self.timeNow = None
         self.addTime: float
         self.timeOut= 300
+
+        self.sendTotalByte = 0.0
+        self.units = ["byte", "KB", "MB"]
+        self.unitIndex = 0
 
         self._consecutive_failed = 0
         self._last_consecutive_failed = 0
@@ -75,7 +80,7 @@ class PingStats:
         self.timeOut = timeout 
 
 
-    def add_result(self, rtt: Optional[float], timeStamp:int = None):
+    def add_result(self, rtt: Optional[float], timeStamp:int = None, payloadSize = 0):
         if not self.startTime:
             self.startTime =  datetime.now() #istanbul saati için
             
@@ -84,6 +89,8 @@ class PingStats:
 
         self._rttList.append(rtt)
         self._timeStamp_for_rttList.append(timeStamp)
+        self.update_sendTotalByte(payloadSize)
+
 
         self.timeNow = time.time()
 
@@ -221,7 +228,8 @@ class PingStats:
             "last result": self.last_result,
             "rate of thread": round(self.rate, 2) if self.rate is not None else None,
             "start time":self.startTime.strftime("%Y-%m-%d %H:%M:%S") if self.startTime is not None else None,
-            "avg rate of send ping in seconds":round(self.sent / (self.timeNow - self.startTime_millis),2) if self.startTime_millis is not None else 0#BUG eğer ping durdururlur ve zaman geçtikten sonra tekrar başlatılırsa  ping atılmayan zaman çıkarılmadığı için bu değer bir düşüş yaşar
+            "avg rate of send ping in seconds":round(self.sent / (self.timeNow - self.startTime_millis),2) if self.startTime_millis is not None else 0,#BUG eğer ping durdururlur ve zaman geçtikten sonra tekrar başlatılırsa  ping atılmayan zaman çıkarılmadığı için bu değer bir düşüş yaşar
+            "send total packet size": self.convert_rightUnit( self.sendTotalByte)
         }
     
     def get_time_series_data(self):  # zaman ve rtt'yi birleştirir
@@ -331,7 +339,17 @@ class PingStats:
             lines.append(InfiniteLine(pos=self.max_rtt, angle=0, pen='m'))
         return lines
 
+    def convert_rightUnit(self, sendTotalByte:int) -> str:
+        if sendTotalByte > 1024*1024:
+            return f"{round(sendTotalByte/(1024*1024),2)} MByte "    
+        if sendTotalByte > 1024:
+            return f"{round(sendTotalByte/1024,2)} KByte" 
+        
+        return f"{round(sendTotalByte,2)} Byte" 
+        
 
+    def update_sendTotalByte(self,payloadSize:int):
+        self.sendTotalByte += payloadSize
 
     def __del__(self):
         print(f"[{self}] PingStats objesi siliniyor.")
