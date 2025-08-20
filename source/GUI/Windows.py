@@ -42,36 +42,20 @@ class ChangeParameterWindow(QDialog):
         self.timeOut = str(int(task.kwargs['timeout']))
         self.ui.checkBox_infinite.setCheckState(self.isInfinite)
         now = datetime.now()
-        #calender için ayar
-        self.ui.dateTimeEdit.setCalendarPopup(True)
-        self.ui.dateTimeEdit.setDateTime(QDateTime.currentDateTime())
-        self.ui.dateTimeEdit.setMinimumDate(now)
+        
         #task değerlerini okuyup gösterir
         self.ui.lineEdit_ip.setText(task.address)
         self.ui.lineEdit_interval.setText(str(task.interval_ms))
         self.ui.lineEdit_payloadsize.setText(str(task.kwargs['payload_size']))
         self.ui.lineEdit_timeout.setText(self.timeOut)
         
-        self.dissableTabsExcept()
+        
 
-        self.ui.pushButton_settChages.clicked.connect(self.applyChange)
+        self.ui.pushButton_settChages.clicked.connect(self.applyChange) 
 
-    def dissableTabsExcept(self):
-        tabCount = self.ui.tabWidget.count()
-        print(f"tab count {tabCount}")
+        
 
-        print(f"end date var mı {self.task.getEnd_datetime()}")
-
-        for i in range(tabCount):        
-            self.ui.tabWidget.setTabEnabled(i, False)# bütün tabları kapatır
-        if ( self.task.duration or self.isInfinite) and (self.task.duration !=0 or self.isInfinite) :
-            self.ui.tabWidget.setTabEnabled(0, True)# duration değeri varsa o tabi açar
-            self.ui.lineEdit_duration.setText(str(self.task.duration))
-            self.ui.tabWidget.setCurrentIndex(0)
-        if self.task.kwargs.get('end_datetime'):
-            self.ui.tabWidget.setTabEnabled(1, True)# end date objesi varsa değeri varsa o tabi açar
-            self.ui.dateTimeEdit.setDateTime(self.task.kwargs['end_datetime'])#pingthread oluşmadığı için ve bu bilgi PingTask'da saklanmadığı için kwargdan alıyoruz
-            self.ui.tabWidget.setCurrentIndex(1)
+        
     def applyChange(self):
         try:
             # Interval
@@ -90,16 +74,8 @@ class ChangeParameterWindow(QDialog):
             isInfinite = self.ui.checkBox_infinite.isChecked()
             if isInfinite:
                 self.task.isInfinite= isInfinite
-            # Duration tabı aktifse → duration güncellenir
-            if self.ui.tabWidget.isTabEnabled(0) and self.ui.lineEdit_duration.isEnabled():
-                duration_text = self.ui.lineEdit_duration.text().strip()
-                if duration_text:
-                    self.task.duration= int(duration_text)
-                    self.task.isInfinite = False
-            # End datetime tabı aktifse → end_datetime güncellenir
-            if self.ui.tabWidget.isTabEnabled(1) and self.ui.dateTimeEdit.isEnabled():
-                dt = self.ui.dateTimeEdit.dateTime().toPyDateTime()
-                self.task.kwargs["end_datetime"] = dt
+            # Duration tabı aktifse → duration güncellenir           
+            
             self.task.update_thread_parameters()
             self.close()  # pencereyi kapat
         except ValueError as e:
@@ -343,9 +319,9 @@ class MainWindow(QMainWindow):
             summary = stat.summary()
             target = summary["target"]
 
-            if target in self.target_to_row:
+            if target in self.target_to_row:#target ip için target_to_row içinde varsa
                 row = self.target_to_row[target]
-            else:
+            else:#yeni ip tabloya eklenecekse
                 #TODO buradaki mantıktan ötürü silinmiş ip'lerin yerini sadece kendi ip'leri dolduruyor tabloda. boşluk oluyor
                 row = len(self.target_to_row.keys())
                 self.ui.tableWidget_ping.insertRow(row)
@@ -448,10 +424,10 @@ class MainWindow(QMainWindow):
     def restart_ping(self, address:str):
         self.pingController.restart_task(address=address)
     def deleteRowFromTable(self,address:str):
-        self.pingController.stop_address(address=address,isKill=True)
+        
         self.pingController.delete_stats(address=address)
-        self.target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez
-
+     #  self.target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez
+    
         
     def toggleBeep_by_address(self,address:str):#
           

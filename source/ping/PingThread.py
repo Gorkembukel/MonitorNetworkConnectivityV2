@@ -36,16 +36,16 @@ class PingThread(threading.Thread):
         self.stats.set_timeout(self.timeout)
         self.isKill=False #threadi komple kapatır
     def _should_continue(self):#FIXME burada is kill tanımlı o yüzden diğer yerlerden kadlırabiliriz gibi
-        print("kill öncesi")
+        
         if self.isKill:
             return False
 
         now = datetime.now()
-        print(f"date  öncesi {now}")
+        
         # Öncelik: end_datetime varsa ve geçilmişse dur
         if self.end_datetime:  # 🔴 Bitiş zamanı varsa onu esas al
             return now < self.end_datetime
-        print(f"infinite öncesi    {self.isInfinite}")
+        
         if self.isInfinite:
             return True
 
@@ -58,30 +58,30 @@ class PingThread(threading.Thread):
                 # icmplib yöntemi
                 try:
                     send_time = time.time()
-                    print(f"[{self.address}] ➡️ icmp_ping kwargs: {self.kwargs}")
+                    
                     result = icmp_ping(address=self.address, count=self.count,interval=self.interval_ms, timeout=self.timeout/1000, id=self.id, source=self.source,
             family=self.family, privileged=self.privileged, **self.kwargs)
                     if result.is_alive:
                         #rtt = result.avg_rtt
                         
-                        rtt = result._rtts.pop()
+                        rtt = result.avg_rtt 
                         
                         self.stats.add_result(rtt, time.time() + 10800) #    istanbula göre UTC 3
                         
                         #ses için
-                        print(f"beepy dışı {self.isBeep}")
+           
                         if self.isBeep:
                             print('\a')
-                        print(f"[{self.address}] ✅ {rtt:.2f} ms (icmplib)")
+                        
                     else:
                         self.stats.add_result(None, time.time() + 10800) #timeout burada saniyeden ms'ye çevirilir
-                        print(f"[{self.address}] ❌ Timeout (icmplib)")
+                        
                     
                 except Exception as e:
-                    print(f"[{self.address}] ⚠️ ICMP ping exception: {e}")
+                    
                     self.stats.add_result(None, time.time() + 10800)
                 recv_time = time.time()
-                reply_time = recv_time -send_time
+                
                 sleep_time = self.interval_ms# threadin tam olarak interval kadar uyuması için ping atma süresi kadar çıkartıyorum çünkü zaten o kadar zaman geçiyo             
                 if sleep_time > 0:
                     time.sleep(sleep_time) 
@@ -97,7 +97,7 @@ class PingThread(threading.Thread):
 
 
             time.sleep(2)#FIXME uzun time sleep
-        print("döngünün dışına")
+       
     def getStats(self):
         return self.stats
     def setWhileCondition(self, isInfinite: bool):
@@ -132,7 +132,7 @@ class PingThread(threading.Thread):
         if isInfinite is not None:
             self.isInfinite = isInfinite
         if duration is not None:
-            print(f"thread classı içindeki duration  {duration}")
+            
             if self.duration is not None:
                 self.duration = duration
                 self.startTime = time.time() 
@@ -141,11 +141,14 @@ class PingThread(threading.Thread):
             else:
                 self.stop_time = time.time() + duration
 
+
         if kwargs:
             self.kwargs.update(kwargs)
+
+        print(f"[{self.address}] 🔁 Thread parametreleri güncellendi.")
     def toggleBeep(self):
         if self.isBeep:
             self.isBeep=False
         else:self.isBeep=True
 
-        print(f"[{self.address}] 🔁 Thread parametreleri güncellendi.")
+        

@@ -16,7 +16,7 @@ dict_of_data_keys = {# buradaki keyler tablodaki sütun başlıkları için kull
             "Last failed on": "",
             "Consecutive failed": "",
             "Max Consecutive failed": "",
-            "success rate": "",
+            "fail rate": "",
             "min rtt": "",
             "avg rtt": "",            
             "max rtt": "",
@@ -149,8 +149,8 @@ class PingStats:
         return self.sent - self.received  # ya da: self.failed_count
 
     @property
-    def success_rate(self):
-        return (self.received / self.sent * 100) if self.sent else 0.0
+    def fail_rate(self):
+        return (self.failed / self.sent * 100) if self.sent else 0.0
     @property
     def average_rtt(self): 
        
@@ -199,7 +199,7 @@ class PingStats:
             "failed": self.failed,
             "Consecutive failed": self.consequtive_failed,
             "Max Consecutive failed": self.max_consequtive_failed,
-            "success rate": f"% {round(self.success_rate, 2)}",
+            "fail rate": f"% {round(self.fail_rate, 2)}",
             "avg rtt": self.average_rtt,
             "min rtt": round(self.min_rtt, 2) if self.min_rtt is not None else None,
             "max rtt": round(self.max_rtt, 2) if self.max_rtt is not None else None,

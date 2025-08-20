@@ -1,3 +1,7 @@
-google.com
 1.1.1.1
+mahmut.com
+9.9.9.9
+burgerking.com
+google.com
 8.8.8.8
+andasis.com

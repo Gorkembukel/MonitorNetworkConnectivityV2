@@ -1,4 +1,3 @@
-# scapy_pinger.py
 
 
 
@@ -7,6 +6,7 @@ import socket
 from source.ping.PingThread import PingThread
 from source.ping.PingStatistic import PingStats
 from typing import Dict
+
 
 def is_valid_ip(ip_str: str) -> bool:
     try:
@@ -32,8 +32,7 @@ def filter_kwargs_for_PingThread(kwargs: dict) -> dict:
         "id",
         "source",
         "family",
-        "privileged",
-        "end_datetime",
+        "privileged",        
         "isInfinte"
     }
 
@@ -80,22 +79,18 @@ class PingTask:
     def wait(self):
         if self.thread:
             self.thread.join()
-    def getEnd_datetime(self):
-        if self.thread:            
-            return self.thread.getEnd_datetime()
-        else :
-            None
+    
     def update_thread_parameters(self):
         if self.thread:
             self.thread.update_parameters(
                 interval_ms=self.interval_ms,
-                end_datetime=self.kwargs.get("end_datetime", None),
                 isInfinite=self.isInfinite,
                 duration=self.duration,
                 **self.kwargs
             )
     def join(self):
-        self.thread.join()
+        if self.thread:
+            self.thread.join()
 
 
 
@@ -122,6 +117,7 @@ class SingletonMeta(type):# pingcontrollerı sinfleton yapmak için
         return cls._instances[cls]
 
 class PingController(metaclass=SingletonMeta):
+    
     def __init__(self):
         print(f"[PingController init]  deneme")#BUG test için
         self.tasks: Dict[str, PingTask] = {}  # key = address, value = PingTask
@@ -195,7 +191,9 @@ class PingController(metaclass=SingletonMeta):
 
     
     def delete_stats(self, address):
+
         if address in self.stats_list:
+            self.stop_address(address=address,isKill=True)
             del self.stats_list[address]
             del self.tasks[address]
             del self.address_dict[address]
