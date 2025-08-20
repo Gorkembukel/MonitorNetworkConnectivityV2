@@ -80,7 +80,7 @@ class PingThread(threading.Thread):
                 except Exception as e:
                     
                     self.stats.add_result(None, time.time() + 10800)
-                recv_time = time.time()
+                
                 
                 sleep_time = self.interval_ms# threadin tam olarak interval kadar uyuması için ping atma süresi kadar çıkartıyorum çünkü zaten o kadar zaman geçiyo             
                 if sleep_time > 0:

@@ -124,7 +124,7 @@ class PingStats:
             self._M2 += delta * (rtt - self._mean)
 
         # en sonda sadece yeni noktayı cache’e ekle:
-        self._append_plot_point(time, rtt)
+        self._append_plot_point(timeStamp, rtt)
 
 
         
