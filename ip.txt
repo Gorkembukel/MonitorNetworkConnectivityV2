@@ -1,7 +1,6 @@
-1.1.1.1
-mahmut.com
+149.112.112.112
 9.9.9.9
-burgerking.com
-google.com
+1.0.0.1
+1.1.1.1
+8.8.4.4
 8.8.8.8
-andasis.com

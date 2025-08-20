@@ -322,10 +322,20 @@ class MainWindow(QMainWindow):
             if target in self.target_to_row:#target ip için target_to_row içinde varsa
                 row = self.target_to_row[target]
             else:#yeni ip tabloya eklenecekse
-                #TODO buradaki mantıktan ötürü silinmiş ip'lerin yerini sadece kendi ip'leri dolduruyor tabloda. boşluk oluyor
-                row = len(self.target_to_row.keys())
-                self.ui.tableWidget_ping.insertRow(row)
-                self.target_to_row[target] = row
+
+                #tablodaki bütün satırları tek tek boş mu diye dener
+                for row in range(self.ui.tableWidget_ping.rowCount()):
+                    
+                    it = self.ui.tableWidget_ping.item(row, 0)#satırların sadece başındaki columa bakar o yüzden 0
+                    if it is None:  #hali hazırda olan satırlardan boşluğa denk gelirse oraya koyar
+                        self.target_to_row[target] = row
+                        break
+                if target not in self.target_to_row:#eğer döngü bittiğinde hala boşluk yoksa en sona yeni bir satır oluşturup koyar
+                    row = len(self.target_to_row.keys()) 
+                    self.ui.tableWidget_ping.insertRow(row)
+                    self.target_to_row[target] = row
+                    
+                    self.target_to_row[target] = row
 
             # ✅ Renk sadece bir kere belirleniyor
             last_result = summary.get("last result", "")
@@ -426,9 +436,23 @@ class MainWindow(QMainWindow):
     def deleteRowFromTable(self,address:str):
         
         self.pingController.delete_stats(address=address)
-     #  self.target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez
-    
-        
+        row = self.target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez
+        self.update_target_to_row(row)
+        self.ui.tableWidget_ping.removeRow(row)
+
+
+
+    def update_target_to_row(self,deleted_row):#bu method bir ip listeden çıkartılınca tablonun kaymasını engellemek için
+                                    #target_to_row dictonry'si içinde ki gerekli value'ları bir değer küçültür 
+        new_map = {}
+        for target, row in self.target_to_row.items():
+            if row > deleted_row:
+                new_map[target] = row - 1
+            elif row < deleted_row:
+                new_map[target] = row
+            # eşitse (row == deleted_row) zaten silinmiş olmalı → atlanır
+        self.target_to_row = new_map
+
     def toggleBeep_by_address(self,address:str):#
           
         self.pingController.toggleBeep_by_address(address=address)
@@ -467,6 +491,10 @@ class MainWindow(QMainWindow):
         for ip in to_remove:
             self.pingController.stop_address(address=ip, isKill=True)
             self.pingController.delete_stats(address=ip)
+            row = self.target_to_row.pop(ip, None)
+            self.update_target_to_row(row)
+            self.ui.tableWidget_ping.removeRow(row)
+
 
          # 6) Snapshot'ı güncelle (bir sonraki karşılaştırma için)
         self.textInBegining = "\n".join(addresses)#TODO buraya bakılmalı

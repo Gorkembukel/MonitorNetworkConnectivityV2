@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
@@ -6,24 +7,24 @@ import matplotlib.pyplot as plt
 import pyqtgraph as pg
 from pyqtgraph import PlotDataItem,BarGraphItem
 
-
-
 dict_of_data_keys = {# buradaki keyler tablodaki sütun başlıkları için kullanılacak. Ekleyeceğiniz veri varsa burada başlığını girerseniz grafik güncellenir
-            "target": "",
+            "target": "",            
             "sent": "",
             "received": "",
-            "failed": "",
-            "Last failed on": "",
+            "failed": "",            
             "Consecutive failed": "",
             "Max Consecutive failed": "",
             "fail rate": "",
             "min rtt": "",
             "avg rtt": "",            
             "max rtt": "",
+            "Last failed on": "",
             "Last success on": "",            
             "jitter": "",
             "last result": "",
-            "rate":""
+            "start time": "",
+            "rate of thread":"",
+            "avg rate of send ping in seconds":""
         }
 
 def get_data_keys():
@@ -37,6 +38,9 @@ class PingStats:
         self._rttList: List[Optional[float]] = []
         self._timeStamp_for_rttList: List[Optional[int]] = []        
         self._rate: float = 0
+        self.startTime =None
+        self.startTime_millis = None
+        self.timeNow = None
         self.addTime: float
         self.timeOut= 300
 
@@ -71,9 +75,17 @@ class PingStats:
         self.timeOut = timeout 
 
 
-    def add_result(self, rtt: Optional[float], time:int = None):
+    def add_result(self, rtt: Optional[float], timeStamp:int = None):
+        if not self.startTime:
+            self.startTime =  datetime.now() #istanbul saati için
+            
+        if not self.startTime_millis:            
+            self.startTime_millis = time.time()
+
         self._rttList.append(rtt)
-        self._timeStamp_for_rttList.append(time)
+        self._timeStamp_for_rttList.append(timeStamp)
+
+        self.timeNow = time.time()
 
       # başarısız kriteri: None veya timeout'a eşit/büyük        
 
@@ -193,7 +205,7 @@ class PingStats:
 
     def summary(self):
         return {
-            "target": self.target,
+            "target": self.target,            
             "sent": self.sent,
             "received": self.received,
             "failed": self.failed,
@@ -207,7 +219,9 @@ class PingStats:
             "Last success on": self.last_success_on.strftime("%d-%m-%Y %H:%M:%S") if self.last_success_on else None,
             "Last failed on": self.last_failed_on.strftime("%d-%m-%Y %H:%M:%S") if self.last_failed_on else None,
             "last result": self.last_result,
-            "rate": round(self.rate, 2) if self.rate is not None else None
+            "rate of thread": round(self.rate, 2) if self.rate is not None else None,
+            "start time":self.startTime.strftime("%Y-%m-%d %H:%M:%S") if self.startTime is not None else None,
+            "avg rate of send ping in seconds":round(self.sent / (self.timeNow - self.startTime_millis),2) if self.startTime_millis is not None else 0#BUG eğer ping durdururlur ve zaman geçtikten sonra tekrar başlatılırsa  ping atılmayan zaman çıkarılmadığı için bu değer bir düşüş yaşar
         }
     
     def get_time_series_data(self):  # zaman ve rtt'yi birleştirir
