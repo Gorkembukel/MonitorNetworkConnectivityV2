@@ -98,7 +98,9 @@ class Iperf_controller(metaclass=SingletonMeta):
 
     def delete_client(self,hostname):        
         # hostname key'ini kaldır
-        
+        client_subproces = self.clientSubproceses[hostname]
+        if client_subproces.is_running():
+            client_subproces.stop_iperf()
         self.testResults.pop(hostname, None)
         self.clientSubproceses.pop(hostname, None)
 

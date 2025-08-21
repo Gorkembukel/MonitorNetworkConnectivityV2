@@ -98,25 +98,30 @@ class TestResult_Wrapper_sub(QObject):
         t.start()
     def set_std_outERR(self,stdout:io.StringIO,stderr):# Client_subproces bu metot ile popen'i buraya aktarır
         self.stdout = stdout
-        self.stderr = stderr
+        self.stderr = stderr# bu boşta
         t = threading.Thread(target=self.task_withStdoutErr)#BUG thread hep açık kalıyor olabilir
         t.start()
         
-    
-    def task_withStdoutErr(self):  # ssh bunu kullanıyor #BUG metot içindeki while hiç kapanmıyor
-        pos = 0
+        
+    def task_withStdoutErr(self):
+        stringIo = self.stdout# ssh ile remote pc'den gelen veri
+        
         while not self._stop.is_set():
-            buf = self.stdout.getvalue()
-            if len(buf) > pos:
-                chunk = buf[pos:]
-                pos = len(buf)
-                for line in chunk.splitlines():
-                    print(f"buradayız >>> {line}")
-                    self.parse_iperf3_line(line)
-    
+            stringIo.seek(0)#en başa gider
+
+            line = stringIo.readline()
+            remaining = stringIo.read()
+            
+            stringIo.seek(0)
+            stringIo.truncate(0)
+            stringIo.write(remaining)
+            self.parse_iperf3_line(line)
             time.sleep(0.5)
+
     def start(self):
         self._stop.clear()
+        t = threading.Thread(target=self.task_withStdoutErr)#BUG thread hep açık kalıyor olabilir
+        t.start()
     def stop(self):
         """Dışarıdan çağrıldığında döngüyü kırar"""
         print(f"[iperf_testresult_wrapper_sub    stop içi]    döngü durduruldu")
@@ -166,8 +171,8 @@ class TestResult_Wrapper_sub(QObject):
             omitted=omitted
         )
         self.streams.append(stream)
-        # debug:
-        self.print_stream(stream)
+        
+        
         
 
 

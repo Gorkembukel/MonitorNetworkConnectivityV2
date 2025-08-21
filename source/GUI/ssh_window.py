@@ -333,7 +333,7 @@ class SSHClient(QMainWindow):
         if name !="iperf":# stdout_chunk sinyallerinden sadece iperf olan gelsin
             return
         
-        print(data)
+        
         self.ui.plainTextEdit_iperf.appendPlainText(data)
 
         # İmleci sona taşı ve görünür kıl (otomatik alt kaydırma)

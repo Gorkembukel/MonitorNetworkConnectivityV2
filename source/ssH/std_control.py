@@ -37,7 +37,7 @@ class Reader(threading.Thread):
                     if data:
                         self.owner._append_out(self.name, data)
                         self.owner._emit_stdout_chunk(self.name, data)
-                        print(f"[{self.name} OUT] {data}", end="", flush=True)
+                        
                         any_data = True
 
                 # STDERR
@@ -135,12 +135,12 @@ class STD_object(QObject):
         # Eski reader varsa durdur
         if st["reader"] is not None and st["reader"].is_alive():
             st["reader"].stop()
-            st["reader"].join(timeout=1.0)
+            #st["reader"].join(timeout=0.2) #BUG arayüzü donduruyor. o yüzden iptal. Ama istenirse aktif edilebilir ne işe yarıyor bilmiyorum
         st["reader"] = None
 
         if reset_buffers:
-            st["out_buf"] = ""
-            st["err_buf"] = ""
+            st["out_buf"] = io.StringIO()
+            st["err_buf"] = io.StringIO()
 
         reader = Reader(owner=self, name=name, stdout=st["stdout"], stderr=st["stderr"])
         st["reader"] = reader
@@ -174,16 +174,16 @@ class STD_object(QObject):
     # ------- İç yardımcılar (Reader burayı çağırır) -------
     def _append_out(self, name: str, text: str) -> None:
         st = self._require(name)
-        st["out_buf"].write(text)
+        stringIo:io.StringIO =st["out_buf"]
+        stringIo.write(text)
+        print(f"[std_control içi  _append_out]   {stringIo.getvalue()}")
 
         #print(f"[std_control _append_out içi]   {st['out_buf'].getvalue()}   ") #test için
 
     def _append_err(self, name: str, text: str) -> None:
-        st = self._require(name)
-        if self._max_buffer is None:
-            st["err_buf"] += text
-        else:
-            st["err_buf"] = (st["err_buf"] + text)[-self._max_buffer:]
+        st = self._require(name)        
+        st["err_buf"].write(text)
+        
 
     def _set_done(self, name: str) -> None:
         self._require(name)["done"].set()

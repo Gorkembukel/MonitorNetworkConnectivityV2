@@ -84,7 +84,7 @@ class Linux(Strategy):
         bandwidth: Optional[str] = None,
         extra: Optional[str] = None,
     ) -> str:
-        parts = ["iperf3"]
+        parts = ["iperf3 -V"]
         if role == "server":
             parts.append("-s")
             if port: parts += ["-p", str(port)]

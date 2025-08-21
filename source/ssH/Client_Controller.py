@@ -39,8 +39,7 @@ class ClientWrapper:
         Client.execute_command çıktısını güvenli biçimde string'e çevir.
         """
         
-        stdout, stderr = self.client.execute_command(cmd)
-        
+        stdout, stderr = self.client.execute_command(cmd)     
        
         
         
@@ -96,29 +95,10 @@ class ClientWrapper:
 
         return guess
     
-    def open_iperf3_server_on_remote(
-        self,
-        *,
-        port: int = 5201,
-        
-        
-    ) -> tuple[str, str]:
-        """
-        Uzakta iperf3 server'ı başlatır. OS'e göre doğru komutu üretir ve çalıştırır.
-        
-        Döndürür: (stdout, stderr)
-        """
-        
 
-        # 1) osStrategy ile temel komut üret
-        base_cmd = self.executor.comand_Iperf3(role="server", port=port)        
 
-        return self._run_cmd(base_cmd)
-    
-    def open_iperf3_client_on_remote(self):
-        pass
 
-    def open_iperf3(self, **kwargs):
+    def open_iperf3(self, **kwargs) ->STD_object:
         name ="iperf"
         base_cmd = self.executor.comand_Iperf3(**kwargs)        
         
@@ -126,6 +106,8 @@ class ClientWrapper:
         self.stdobject.register_stream(name,stdout=stdout,stderr=stderr)
         self.stdobject.start(name)
         return self.stdobject
+    
+
     def ping_on_remote(self, **kwargs):
         name = "ping"
         base_cmd = self.executor.command_Ping(**kwargs)

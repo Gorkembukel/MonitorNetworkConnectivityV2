@@ -94,5 +94,17 @@ class Client_subproces():
         poll = self.proces.poll()
         if poll is None:
             return True 
+    def stop_iperf(self):
+        if self.proces and self.is_running():
+            print(f"Stopping iperf3 process for {self.server_hostname}")
+            self.proces.terminate()  # Sürece SIGTERM gönderir
+            try:
+                self.proces.wait(timeout=5)  # 5 sn içinde kapanmazsa
+            except subprocess.TimeoutExpired:
+                print("Process did not exit, killing it forcefully.")
+                self.proces.kill()  # SIGKILL ile zorla kapatır
+            self.proces = None
+        else:
+            print("No running iperf3 process to stop.")
     def _del__(self):
         print(f"[🗑 Siliniyor:Client_Subproces] {self.clientKwargs.get('server_hostname')}")

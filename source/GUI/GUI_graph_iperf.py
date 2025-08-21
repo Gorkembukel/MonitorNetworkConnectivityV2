@@ -14,6 +14,7 @@ class GraphWindow_iperf(QMainWindow):
         self.ui.setupUi(self)
 
         self.testResult = testResultWrapper_sub
+        self.testResult.start()#
         self.setWindowTitle(f"Iperf Result for {self.testResult.hostName}")
 
         self.plot_widget = PlotWidget(self.ui.widget_graph)
