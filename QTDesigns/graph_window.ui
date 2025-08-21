@@ -7,75 +7,41 @@
     <x>0</x>
     <y>0</y>
     <width>991</width>
-    <height>584</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="widget_2" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QWidget" name="widget_2" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QDockWidget" name="dockWidget">
-           <widget class="QWidget" name="dockWidgetContents">
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QTabWidget" name="tabWidget">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="tab">
-                <attribute name="title">
-                 <string>Rtt</string>
-                </attribute>
-               </widget>
-               <widget class="QWidget" name="tab_2">
-                <attribute name="title">
-                 <string>Jitter</string>
-                </attribute>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDockWidget" name="dockWidget_2">
-           <widget class="QWidget" name="dockWidgetContents_2">
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QTabWidget" name="tabWidget_2">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="tab_3">
-                <attribute name="title">
-                 <string>Succes </string>
-                </attribute>
-               </widget>
-               <widget class="QWidget" name="tab_4">
-                <attribute name="title">
-                 <string>Min max</string>
-                </attribute>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout_2"/>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Rtt</string>
+         </attribute>
+        </widget>
        </widget>
       </item>
      </layout>

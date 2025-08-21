@@ -52,31 +52,10 @@ class GraphWindow(QDialog):
         self.ui.tab.setLayout(layout1)
         self.plot_refs['rtt'] = curve
 
-        # 2️⃣ Jitter → tab_2
-        jitter_plot = PlotWidget()
-        bar = self.stat_obj.get_jitter_bar()
-        jitter_plot.addItem(bar)
-        layout2 = QVBoxLayout()
-        layout2.addWidget(jitter_plot)
-        self.ui.tab_2.setLayout(layout2)
-        self.plot_refs['jitter'] = bar
+      
 
-        # 3️⃣ Success bar → tab_3
-        succ_plot = PlotWidget()
-        bar2 = self.stat_obj.get_success_bar()
-        succ_plot.addItem(bar2)
-        layout3 = QVBoxLayout()
-        layout3.addWidget(succ_plot)
-        self.ui.tab_3.setLayout(layout3)
-        self.plot_refs['success'] = bar2
        
-        # 4️⃣ Min/Max → tab_4
-        minmax_plot = PlotWidget()
-        for line in self.stat_obj.get_min_max_lines():
-            minmax_plot.addItem(line)
-        layout4 = QVBoxLayout()
-        layout4.addWidget(minmax_plot)
-        self.ui.tab_4.setLayout(layout4)
+      
 
     def update_plots(self):
         """if 'rtt' in self.plot_refs:        
@@ -94,15 +73,7 @@ class GraphWindow(QDialog):
                     symbolBrush=brushes,
                     symbolPen=pens
                 )
-                self._last_len = cur_len
-        if 'jitter' in self.plot_refs:
-            self.plot_refs['jitter'].setOpts(height=[self.stat_obj.jitter])
-
-        if 'success' in self.plot_refs:
-            total = self.stat_obj.sent
-            success_pct = (self.stat_obj.received / total * 100) if total else 0
-            fail_pct = 100 - success_pct if total else 0
-            self.plot_refs['success'].setOpts(height=[success_pct, fail_pct])
+            self._last_len = cur_len
     def closeEvent(self, e):
         # Timer güvenli kapatma
         if self.timer and self.timer.isActive():
@@ -120,17 +91,7 @@ class GraphWindow(QDialog):
                 pass
         self.plot_refs.clear()
 
-        # Sekme layout’larını temizle (isteğe bağlı ama iyi olur)
-        for tab in (getattr(self.ui, "tab", None),
-                    getattr(self.ui, "tab_2", None),
-                    getattr(self.ui, "tab_3", None),
-                    getattr(self.ui, "tab_4", None)):
-            if tab and tab.layout():
-                lay = tab.layout()
-                while lay.count():
-                    w = lay.takeAt(0).widget()
-                    if w:
-                        w.deleteLater()
+      
 
         self.deleteLater()  # gerçekten yok et
         return super().closeEvent(e)
