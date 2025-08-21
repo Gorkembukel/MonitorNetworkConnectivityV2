@@ -19,9 +19,10 @@ class ConnectionThread(QtCore.QThread):
         def __init__(self, client_wrapper):
             super().__init__()
             self.client_wrapper = client_wrapper
+            
             print(f"[ConnectionThread] client_wrapper  {self.client_wrapper}")
         def run(self):
-            try:
+            try:                
                 self.client_wrapper.connect()
                 os_type = self.client_wrapper.greet_and_set_strategy()
                 self.connection_result.emit(self.client_wrapper,True, self.client_wrapper.hostname, self.client_wrapper.username, "")
@@ -30,7 +31,7 @@ class ConnectionThread(QtCore.QThread):
             except Exception as e:
                 self.connection_result.emit(None,False, self.client_wrapper.hostname, "", str(e))
 
-
+        
 
 class SSH_login(QDialog):
     def __init__(self, parent):
@@ -39,7 +40,7 @@ class SSH_login(QDialog):
         self.ui.setupUi(self)
         self.parent = parent
         #buton conneciton
-        self.ui.pushButton_add.clicked.connect(self.login_ssh)  # ✅ doğru
+        self.ui.pushButton_addLogin.clicked.connect(self.login_ssh)  
 
         #parent(mainWindow) veri alma
         self.client_controller:Client_Controller = Client_Controller()
@@ -65,24 +66,53 @@ class SSH_login(QDialog):
         self.connection_thread.connection_result.connect(self.handle_connection_result)
         self.connection_thread.start()
         
-        QtWidgets.QMessageBox.information(self, "Bilgi", 
-            f"{hostName} için bağlantı deneniyor...")
-            
-        """except Exception as e:
+        self.info_box = QtWidgets.QMessageBox(self)
+        self.info_box.setWindowTitle("Bilgi")
+        self.info_box.setText(f"{hostName} için bağlantı deneniyor...")
+        self.info_box.setIcon(QtWidgets.QMessageBox.Information)
+
+        # Kapat butonu ekliyoruz
+        close_button = self.info_box.addButton("Close", QtWidgets.QMessageBox.RejectRole)        
+        close_button.clicked.connect(self.info_box.close)  # Buton tıklanınca pencere kapanır
+
+        self.info_box.show()
+       
+        
+        
+        #TODO  bu commentten çıkartılabilir geliştirme süreci bitince. traceback edilmiyor exception açıldığında ama kullanıcılar için olması faydalı olur    
+        """except Exception as e: 
             QtWidgets.QMessageBox.critical(self, "Hata", 
                 f"İstemci oluşturulamadı: {str(e)}")
             if hostName in client_controller.list_clients():
                 client_controller.remove_client(hostName)"""
+        
+        
 
     def handle_connection_result(self,clientWrapper:ClientWrapper ,success, hostname, username, error_msg):
         print(f"[handle connection thread] client_wrapper  {clientWrapper}")
         if success:
             # Başarılıysa widget ekle
             self.parent.add_client_widget(hostname, username, clientWrapper=clientWrapper)
-            QtWidgets.QMessageBox.information(self, "Başarılı", 
-                f"{hostname} bağlantısı kuruldu. OS: {clientWrapper.os_type}")
+
+            success_info_box = QtWidgets.QMessageBox(self)
+            success_info_box.setWindowTitle("Bilgi")
+            success_info_box.setText(f"{hostname} için Bağlantı başarılı")
+            success_info_box.setIcon(QtWidgets.QMessageBox.Information)
+
+            # Butonu doğru mesaja ekliyoruz
+            close_button = success_info_box.addButton("Close", QtWidgets.QMessageBox.RejectRole)
+            close_button.clicked.connect(success_info_box.close)  
+            close_button.clicked.connect(self.close)
+
+            success_info_box.show()
+            
+               
+            
         else:
             # Başarısızsa client'ı temizle
             self.client_controller.remove_client(hostname)
             QtWidgets.QMessageBox.critical(self, "Hata", 
                 f"{hostname} bağlantısı başarısız: {error_msg}")
+        if hasattr(self, "info_box"):
+            print("---------------------------------------------")
+            self.info_box.close()

@@ -46,8 +46,7 @@ class PingStats:
         self.timeOut= 300
 
         self.sendTotalByte = 0.0
-        self.units = ["byte", "KB", "MB"]
-        self.unitIndex = 0
+        
 
         self._consecutive_failed = 0
         self._last_consecutive_failed = 0

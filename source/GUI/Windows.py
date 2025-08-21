@@ -131,8 +131,10 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_stopAll.clicked.connect(self.stopAll)
 
             #iperf için
-        self.ui.pushButton_iperfStartAll.setHidden(True)
-        self.ui.pushButton_iperfStopall.setHidden(True)
+        #    self.ui.pushButton_iperfStartAll.setHidden(True)
+        #    self.ui.pushButton_iperfStopall.setHidden(True)
+        self.ui.pushButton_iperfStartAll.clicked.connect(self.iperfController.start_all)
+        self.ui.pushButton_iperfStopall.clicked.connect(self.iperfController.stop_all)
             #ssh için
         self.ui.pushButton_loginmenu.clicked.connect(self.open_ssh_loginMenu)
 
@@ -164,7 +166,8 @@ class MainWindow(QMainWindow):
         if self.last_ip_list and not self.statList:            
             for line in self.last_ip_list:
                 self.ui.plainTextEdit_iplist.insertPlainText(f"{line}\n")
-
+        #Genel arayüz işlemleri.
+        self.ui.Rightdock_LoginSSH.setHidden(True)# başlangıçta sağ docker görünmez olur
         #QTimer
         self.ping_tableTimer = QTimer(self)
         self.ping_tableTimer.setInterval(1000)  # 1000ms = 1 saniye#60fps için girilen değr
@@ -221,8 +224,13 @@ class MainWindow(QMainWindow):
         self.window.setWindowFlags(Qt.Window | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
         self.window.show()
 
-    def delete_client(self, hostName):
-        self.iperfController.delete_client(hostName)
+    def delete_client(self, address):
+        self.pingController.delete_stats(address=address)
+
+        row = self.iperf_target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez
+        self.iperf_update_target_to_row(row)
+        self.ui.tableWidget_iperfClient.removeRow(row)
+        self.iperfController.delete_client(address)
         
 
 
@@ -259,7 +267,18 @@ class MainWindow(QMainWindow):
         self.iperf_update_clientTable()
         
 
+    def iperf_update_target_to_row(self,deleted_row):#iperf için bu method bir ip listeden çıkartılınca tablonun kaymasını engellemek için
+                                    #target_to_row dictonry'si içinde ki gerekli value'ları bir değer küçültür 
+        new_map = {}
+        for target, row in self.iperf_target_to_row.items():
+            if row > deleted_row:
+                new_map[target] = row - 1
+            elif row < deleted_row:
+                new_map[target] = row
+            # eşitse (row == deleted_row) zaten silinmiş olmalı → atlanır
+        self.iperf_target_to_row = new_map
 
+    
     def iperf_update_clientTable(self):        
         self.ui.tableWidget_iperfClient.clearContents()
 
@@ -268,12 +287,26 @@ class MainWindow(QMainWindow):
             
             target = client.server_hostname
             
-            if target in self.iperf_target_to_row:
+            
+            
+            if target in self.iperf_target_to_row:#target ip için target_to_row içinde varsa
                 row = self.iperf_target_to_row[target]
-            else:
-                row = len(self.iperf_target_to_row.keys())
-                self.ui.tableWidget_iperfClient.insertRow(row)
-                self.iperf_target_to_row[target] = row
+            else:#yeni ip tabloya eklenecekse
+
+                #tablodaki bütün satırları tek tek boş mu diye dener
+                for row in range(self.ui.tableWidget_iperfClient.rowCount()):
+                    
+                    it = self.ui.tableWidget_iperfClient.item(row, 0)#satırların sadece başındaki columa bakar o yüzden 0
+                    if it is None:  #hali hazırda olan satırlardan boşluğa denk gelirse oraya koyar
+                        self.target_to_riperf_target_to_rowow[target] = row
+                        break
+                if target not in self.iperf_target_to_row:#eğer döngü bittiğinde hala boşluk yoksa en sona yeni bir satır oluşturup koyar
+                    row = len(self.iperf_target_to_row.keys()) 
+                    self.ui.tableWidget_iperfClient.insertRow(row)
+                    self.iperf_target_to_row[target] = row
+                    
+                    self.iperf_target_to_row[target] = row
+
 
             # Kolonları, header sırasına göre doldur
             for col, key in enumerate(self.iperf_headers):
@@ -291,8 +324,19 @@ class MainWindow(QMainWindow):
     #SSH için ###############################################################################
 
     def open_ssh_loginMenu(self):
-        loginMenu = SSH_login(self)
-        loginMenu.show()
+        self.ui.Rightdock_LoginSSH.setVisible(True)
+    # Eğer pencere zaten oluşturulmamışsa, oluştur
+        if not hasattr(self, 'loginMenu') or self.loginMenu is None:
+            self.loginMenu = SSH_login(self)
+        
+        # Pencere zaten kapatılmışsa, yeniden oluştur
+        if not self.loginMenu.isVisible():
+            self.loginMenu = SSH_login(self)
+
+        # Pencereyi göster ve öne getir
+        self.loginMenu.show()
+        self.loginMenu.raise_()
+        self.loginMenu.activateWindow()
     
     def add_client_widget(self ,hostname, username, port=22,clientWrapper:ClientWrapper=None):
         # Yeni bir ClientWidget oluştur
@@ -374,7 +418,7 @@ class MainWindow(QMainWindow):
                 menu.addAction("Grafik Aç", lambda: self.open_graph(address=address))
                 menu.addAction("Beep", lambda: self.toggleBeep_by_address(address))
                 menu.addAction("Durdur", lambda: self.ip_stop(address=address, isToggle=True, isKill=False))
-                menu.addAction("Sil", lambda: self.deleteRowFromTable(address=address))
+                menu.addAction("Sil", lambda: self.deleteRowFromTable_ping(address=address))
                 menu.exec(self.ui.tableWidget_ping.mapToGlobal(event.pos()))
                 return True  # olayı tükettik
 
@@ -433,7 +477,7 @@ class MainWindow(QMainWindow):
         self.pingController.stop_address(address=address, **kargs)
     def restart_ping(self, address:str):
         self.pingController.restart_task(address=address)
-    def deleteRowFromTable(self,address:str):
+    def deleteRowFromTable_ping(self,address:str):
         
         self.pingController.delete_stats(address=address)
         row = self.target_to_row.pop(address, None)  # yoksa None döner, KeyError vermez

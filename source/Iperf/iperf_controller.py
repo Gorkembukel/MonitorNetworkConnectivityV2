@@ -47,10 +47,30 @@ class Iperf_controller(metaclass=SingletonMeta):
         if client_sub.is_running():
             print(f"ℹ️  Zaten çalışıyor: {hostname}")
             return
-
         # Başlat
         client_sub.start_iperf()
 
+
+    def start_all(self):
+        for client in self.clientSubproceses.values():
+            if not client.is_running():
+                client.start_iperf()
+                
+    def stop(self, hostname:str):
+        client_sub = self.clientSubproceses.get(hostname)
+        if client_sub is None:
+            raise KeyError(f"Böyle bir key yok: '{hostname}'")
+
+        if not client_sub.is_running():
+            print(f"ℹ️  Zaten çalışıyor: {hostname}")
+            return
+        client_sub.start_iperf()
+
+    def stop_all(self):
+        for client_sub in self.clientSubproceses.values():
+            if client_sub.is_running():
+                client_sub.stop_iperf()
+        
     def add(self, *, hostName:str, overwrite: bool = False,**clientKwargs) -> str:
         """
         Yeni bir Client_subproces ekler.

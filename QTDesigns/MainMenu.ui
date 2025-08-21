@@ -39,7 +39,7 @@
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_ping">
        <attribute name="title">
@@ -897,7 +897,7 @@
    </attribute>
    <addaction name="actionAdd_SSH_Client"/>
   </widget>
-  <widget class="QDockWidget" name="Rightdock">
+  <widget class="QDockWidget" name="Rightdock_LoginSSH">
    <property name="windowTitle">
     <string>SSH Servers</string>
    </property>
@@ -970,7 +970,16 @@
      <normaloff>:/icons/icons/ping.svg</normaloff>:/icons/icons/ping.svg</iconset>
    </property>
    <property name="text">
-    <string>Add ping</string>
+    <string>Add ping (CTRL + A)</string>
+   </property>
+   <property name="iconText">
+    <string extracomment="CTRL + A">Add ping (CTRL + A)</string>
+   </property>
+   <property name="toolTip">
+    <string extracomment="CTRL + A">Add ping (CTRL + A)</string>
+   </property>
+   <property name="whatsThis">
+    <string>open ping tab</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -985,7 +994,7 @@
     <string>Login SSH Server</string>
    </property>
    <property name="toolTip">
-    <string>Add SSH client</string>
+    <string>Add SSH client (CTRL +S)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -1000,7 +1009,7 @@
     <string>Add iperf Client</string>
    </property>
    <property name="toolTip">
-    <string>add iperf client </string>
+    <string>add iperf client (CTRL + F)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>

@@ -158,7 +158,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_add">
+       <widget class="QPushButton" name="pushButton_addLogin">
         <property name="text">
          <string>Login SSH Server</string>
         </property>
