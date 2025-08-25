@@ -4,7 +4,7 @@ import subprocess
 from source.Iperf.iperf_TestResult_Wrapper import TestResult_Wrapper_sub
 from iperf3 import Client
 
-valid_fields = {
+valid_fields = {#Tablo buraya göre headerları çiziyor
             "server_hostname": "",
             "port" : "",
             "num_streams": "",
@@ -12,9 +12,8 @@ valid_fields = {
             "omit": "",
             "duration": "",
             "bandwidth": "",
-            "protocol": "",
-            "blksize": "",
-            "bind_address": "",
+            "protocol": "",           
+            
             "reversed": ""
         }
 class Client_subproces():

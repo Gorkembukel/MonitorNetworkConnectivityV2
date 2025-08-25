@@ -3,6 +3,7 @@ from PyQt5.QtCore import QTimer
 from pyqtgraph import PlotWidget, BarGraphItem
 import pyqtgraph as pg
 import re
+import threading
 from QTDesigns.iperf_result import Ui_MainWindow
 
 from source.Iperf.iperf_TestResult_Wrapper import TestResult_Wrapper_sub
@@ -16,6 +17,7 @@ class GraphWindow_iperf(QMainWindow):
         self.testResult = testResultWrapper_sub
         self.testResult.start()#
         self.setWindowTitle(f"Iperf Result for {self.testResult.hostName}")
+        self.streams = []
 
         self.plot_widget = PlotWidget(self.ui.widget_graph)
         self.plot_widget.setMinimumWidth(700)
@@ -27,6 +29,14 @@ class GraphWindow_iperf(QMainWindow):
         self.curve_all = None
         self.curve_sender = None
         self.curve_receiver = None
+
+
+
+        self.ui.lineEdit_senderavgbitrate.setText("Waiting... ")
+        self.ui.lineEdit_senderTotalTransfer.setText("Waiting... ")
+    
+        self.ui.lineEdit_reciveravgbitrate.setText("Waiting... ")
+        self.ui.lineEdit_receiverrtotaltransfer.setText("Waiting... ")
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -63,6 +73,8 @@ class GraphWindow_iperf(QMainWindow):
         return bps / 1e6
 
     def update_graph_live(self):
+
+        
         # üstteki text kutularını doldur
         
         self.ui.lineEdit_localip.setText(self.testResult.local_ip or "")
@@ -70,8 +82,11 @@ class GraphWindow_iperf(QMainWindow):
         self.ui.lineEdit_remoteip.setText(self.testResult.remote_ip or "")
         self.ui.lineEdit_remoteport.setText(self.testResult.remote_port or "")
 
-        streams = self.testResult.streams
-        if not streams:
+        new_streams = self.testResult.streams
+        for s in new_streams[len(self.streams):]:  # sadece yeni gelenleri ekle
+            self.streams.append(s)
+
+        if not self.streams:
             self.plot_widget.setTitle(f"Bitrate per Stream: {self.testResult.hostName} (waiting for data...)")
             return
 
@@ -80,22 +95,62 @@ class GraphWindow_iperf(QMainWindow):
         xs_sender, ys_sender = [], []
         xs_receiver, ys_receiver = [], []
 
-        for idx, s in enumerate(streams, start=1):
-            mbps = self._to_mbps(self._bps_from_bitrate(s.bitrate))
-            xs_all.append(idx)
-            ys_all.append(mbps)
+        for idx, s in enumerate(self.streams, start=1):
+            
+            if s.stream_type != 'sender' and s.stream_type != 'receiver':
+            
+                mbps = self._to_mbps(self._bps_from_bitrate(s.bitrate))
+                xs_all.append(idx)
+                ys_all.append(mbps)
+            else:
+                if s.stream_type == 'sender':
 
+                    self.ui.lineEdit_senderavgbitrate.setText(s.bitrate)
+                    self.ui.lineEdit_senderTotalTransfer.setText(s.transfer)
+                if s.stream_type == 'receiver':
+                    self.ui.lineEdit_reciveravgbitrate.setText(s.bitrate)
+                    self.ui.lineEdit_receiverrtotaltransfer.setText(s.transfer)
             # cpu metinleri (varsa) güncelle
+            
             if s.local_cpu_percent:
-                self.ui.lineEdit_localCpu.setText(s.local_cpu_percent or "")
-                self.ui.lineEdit_remotecpu.setText(s.remote_cpu_percent or "")
+                self.ui.lineEdit_localCpu.setText(s.local_cpu_percent)
+            else:
+                current = self.ui.lineEdit_localCpu.text()
+                if current == "Waiting..":
+                    self.ui.lineEdit_localCpu.setText("Waiting...")
+                else:
+                    self.ui.lineEdit_localCpu.setText("Waiting..")
+            
+            if s.remote_cpu_percent:
+                self.ui.lineEdit_remotecpu.setText(s.remote_cpu_percent)
+            else:
+                current = self.ui.lineEdit_remotecpu.text()
+                if current == "Waiting..":
+                    self.ui.lineEdit_remotecpu.setText("Waiting...")
+                else:
+                    self.ui.lineEdit_remotecpu.setText("Waiting..")
 
-            if s.stream_type == 'sender':
+
+
+            print(f"--------------------------------------------{s.interval}")
+            if s.interval =="0.00-1.00   sec":#şimdi okuduğu stream Reversed ise beyaz çizgi çizer
+                line = pg.InfiniteLine(
+                    pos=idx, angle=90,
+                    pen=pg.mkPen('white', width=1, style=pg.QtCore.Qt.DashLine)
+                )
+                self.plot_widget.addItem(line)
+                if s.isReversed:
+                    text = pg.TextItem("Reversed", color='w', anchor=(0, 1))
+                    text.setPos(idx, mbps +20)  # Çizginin üst kısmına yaz
+                    self.plot_widget.addItem(text)
+
+            """if s.stream_type == 'sender':
                 xs_sender.append(idx); ys_sender.append(mbps)
             elif s.stream_type == 'receiver':
-                xs_receiver.append(idx); ys_receiver.append(mbps)
+                xs_receiver.append(idx); ys_receiver.append(mbps)"""
 
         # ---- Hepsi (gri çizgi + nokta)
+        
         if self.curve_all is None:
             self.curve_all = self.plot_widget.plot(
                 xs_all, ys_all,
@@ -129,8 +184,10 @@ class GraphWindow_iperf(QMainWindow):
             self.curve_receiver.setData(xs_receiver, ys_receiver)
 
         # X aralığını 1..N’e oturt
-        n = len(streams)
+        n = len(self.streams)
         self.plot_widget.setXRange(1, max(2, n))  # en az 2’ye kadar aç
+
+
     def closeEvent(self, event):
         """Pencere kapanırken arka planda hiçbir şey kalmaması için temiz kapatma."""
         self.testResult.stop()

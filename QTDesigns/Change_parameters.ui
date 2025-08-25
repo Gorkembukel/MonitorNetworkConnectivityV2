@@ -85,21 +85,24 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_interval">
+           <widget class="QSpinBox" name="spinBox_interval">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximumSize">
+            <property name="minimumSize">
              <size>
-              <width>104</width>
-              <height>16777215</height>
+              <width>100</width>
+              <height>0</height>
              </size>
             </property>
-            <property name="maxLength">
-             <number>9997</number>
+            <property name="minimum">
+             <number>300</number>
+            </property>
+            <property name="maximum">
+             <number>99999</number>
             </property>
            </widget>
           </item>
@@ -128,12 +131,18 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_timeout">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QSpinBox" name="spinBox_timeout">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>9999</number>
             </property>
            </widget>
           </item>
@@ -162,21 +171,15 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_payloadsize">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
+           <widget class="QSpinBox" name="spinBox_payloadsize">
+            <property name="minimumSize">
              <size>
-              <width>104</width>
-              <height>16777215</height>
+              <width>100</width>
+              <height>0</height>
              </size>
             </property>
-            <property name="maxLength">
-             <number>9997</number>
+            <property name="maximum">
+             <number>9999</number>
             </property>
            </widget>
           </item>
@@ -189,7 +192,17 @@
         <item>
          <widget class="QCheckBox" name="checkBox_infinite">
           <property name="text">
-           <string>is Endles</string>
+           <string>in Loop</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/icons/refresh-cw.svg</normaloff>:/icons/icons/refresh-cw.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -201,7 +214,20 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_duration"/>
+         <widget class="QSpinBox" name="spinBox_duration">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -248,22 +274,6 @@
   <include location="../resources.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>checkBox_infinite</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>lineEdit_duration</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>84</x>
-     <y>171</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>324</x>
-     <y>172</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>checkBox_infinite</sender>
    <signal>toggled(bool)</signal>

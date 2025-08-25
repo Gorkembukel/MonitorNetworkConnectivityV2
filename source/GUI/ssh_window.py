@@ -241,17 +241,15 @@ class SSHClient(QMainWindow):
             
 
             # İmleci sona taşı ve görünür kıl (otomatik alt kaydırma)
-            
+                
     def open_iperf_menu(self):
-        
-        # Yeni dialog penceresi oluştur
         dialog = QtWidgets.QDialog()
         dialog.setWindowTitle(f"iPerf Ayarları - {self.hostname}")
         dialog.setFixedSize(400, 300)
-        
+
         layout = QtWidgets.QVBoxLayout()
-        
-        # Rol seçimi (Client/Server)
+
+        # Rol seçimi
         role_group = QtWidgets.QGroupBox("Rol")
         role_layout = QtWidgets.QHBoxLayout()
         self.role_client = QtWidgets.QRadioButton("Client")
@@ -260,10 +258,24 @@ class SSHClient(QMainWindow):
         role_layout.addWidget(self.role_client)
         role_layout.addWidget(self.role_server)
         role_group.setLayout(role_layout)
-        
+
         # Parametre inputları
         form_layout = QtWidgets.QFormLayout()
-        
+
+        # Satır oluşturucu (Label + Input birlikte)
+        def make_row(label_text, widget):
+            container = QtWidgets.QWidget()
+            hbox = QtWidgets.QHBoxLayout(container)
+            hbox.setContentsMargins(0, 0, 0, 0)
+
+            label = QtWidgets.QLabel(label_text)
+            hbox.addWidget(label)
+            hbox.addWidget(widget)
+            hbox.addStretch()
+
+            form_layout.addRow(container)
+            return container
+
         self.target_server_input = QtWidgets.QLineEdit()
         self.target_server_input.setPlaceholderText("Hedef Sunucu (client modu için)")
         self.port_input = QtWidgets.QLineEdit("5201")
@@ -273,30 +285,40 @@ class SSHClient(QMainWindow):
         self.parallel_streams_input = QtWidgets.QLineEdit("1")
         self.bandwidth_input = QtWidgets.QLineEdit("1M")
         self.reverse_checkbox = QtWidgets.QCheckBox("Ters Yönde Test (Server->Client)")
-        
-        form_layout.addRow("Hedef Sunucu:", self.target_server_input)
-        form_layout.addRow("Port:", self.port_input)
-        form_layout.addRow("Süre (sn):", self.duration_input)
-        form_layout.addRow("Protokol:", self.protocol_combo)
-        form_layout.addRow("Paralel Akış:", self.parallel_streams_input)
-        form_layout.addRow("Bant Genişliği:", self.bandwidth_input)
-        form_layout.addRow(self.reverse_checkbox)
-        
+
+        # Satır konteynerleri
+        row_target = make_row("Hedef Sunucu:", self.target_server_input)
+        row_port = make_row("Port:", self.port_input)
+        row_duration = make_row("Süre (sn):", self.duration_input)
+        row_proto = make_row("Protokol:", self.protocol_combo)
+        row_parallel = make_row("Paralel Akış:", self.parallel_streams_input)
+        row_bw = make_row("Bant Genişliği:", self.bandwidth_input)
+        row_reverse = make_row("", self.reverse_checkbox)
+
+        # Sadece client modunda görünenler
+        self.client_rows = [row_target, row_duration, row_proto, row_parallel, row_bw, row_reverse]
+
+        # Client/Server seçimine göre göster/gizle
+        def toggle_client_widgets():
+            is_client = self.role_client.isChecked()
+            for row in self.client_rows:
+                row.setVisible(is_client)
+
+        self.role_client.toggled.connect(toggle_client_widgets)
+        self.role_server.toggled.connect(toggle_client_widgets)
+        toggle_client_widgets()
+
         # Butonlar
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
-        )
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(lambda: self.run_iperf(dialog))
         button_box.rejected.connect(dialog.reject)
-        
-        # Layout yerleşimi
+
         layout.addWidget(role_group)
         layout.addLayout(form_layout)
         layout.addWidget(button_box)
         dialog.setLayout(layout)
-        
-        dialog.exec_()
 
+        dialog.exec_()
     def run_iperf(self, dialog):
         try:
        

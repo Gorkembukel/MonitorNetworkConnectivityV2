@@ -71,7 +71,7 @@ class Iperf_controller(metaclass=SingletonMeta):
             if client_sub.is_running():
                 client_sub.stop_iperf()
         
-    def add(self, *, hostName:str, overwrite: bool = False,**clientKwargs) -> str:
+    def add(self, *, hostName:str, overwrite: bool = True,**clientKwargs) -> str:
         """
         Yeni bir Client_subproces ekler.
         key verilmezse 'host[:port]' oluşturulur.

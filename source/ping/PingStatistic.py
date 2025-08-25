@@ -310,6 +310,7 @@ class PingStats:
             symbolPen=pens,
             name="RTT Trend"
         )
+    
         
     def get_jitter_bar(self):
         

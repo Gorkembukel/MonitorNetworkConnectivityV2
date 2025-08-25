@@ -9,7 +9,7 @@ from PyQt5        import QtCore
 from source.Iperf.subproces_for_iperf import Client_subproces
 
 
-parameter_for_table_headers= {  "_server_hostname": "",# buradan tablo headerları oluşturulacak
+parameter_for_table_headers= {  "_server_hostname": "",# buradan tablo headerları oluşturuluyordu artık subproces_for_iperf içinde
                                 "_blksize": "",                                 
                                 "_port": "",
                                 "_num_streams": "",
@@ -48,7 +48,7 @@ class Client_Wrapper(Client):
             "zerocopy": _zerocopy,  # Checkbox olduğundan direkt atanır
             "omit": int(_omit) if _omit else None,
             "duration": int(_duration) if _duration else None,
-            "bandwidth": int(_bandwidth) if _bandwidth else None,
+            "bandwidth": int(_bandwidth)*1024 if _bandwidth else None,
             "protocol": _protocol,
             "blksize": int(_blksize) if _blksize else None,
             "reversed": _reversed

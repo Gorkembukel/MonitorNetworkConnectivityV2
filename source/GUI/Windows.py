@@ -41,14 +41,14 @@ class ChangeParameterWindow(QDialog):
         self.isInfinite = task.isInfinite
         self.timeOut = str(int(task.kwargs['timeout']))
         self.ui.checkBox_infinite.setCheckState(self.isInfinite)
-        now = datetime.now()
+        
         
         #task değerlerini okuyup gösterir
         self.ui.lineEdit_ip.setText(task.address)
-        self.ui.lineEdit_interval.setText(str(task.interval_ms))
-        self.ui.lineEdit_payloadsize.setText(str(task.kwargs['payload_size']))
-        self.ui.lineEdit_timeout.setText(self.timeOut)
-        
+        self.ui.spinBox_interval.setValue(task.interval_ms)
+        self.ui.spinBox_payloadsize.setValue(int(task.kwargs['payload_size']))
+        self.ui.spinBox_timeout.setValue(int(self.timeOut))
+    
         
 
         self.ui.pushButton_settChages.clicked.connect(self.applyChange) 
@@ -58,24 +58,18 @@ class ChangeParameterWindow(QDialog):
         
     def applyChange(self):
         try:
-            # Interval
-            interval_text = self.ui.lineEdit_interval.text().strip()
-            if interval_text:
-                self.task.interval_ms = int(interval_text)
-            #timeout
-            timeout_text = self.ui.lineEdit_timeout.text().strip()
-            if timeout_text:
-                self.task.kwargs['timeout'] = int(timeout_text)
-            # Payload Size
-            payload_text = self.ui.lineEdit_payloadsize.text().strip()
-            if payload_text:
-                self.task.kwargs["payload_size"] = int(payload_text)
-            #isInfinite
-            isInfinite = self.ui.checkBox_infinite.isChecked()
-            if isInfinite:
-                self.task.isInfinite= isInfinite
-            # Duration tabı aktifse → duration güncellenir           
-            
+            interval_val = self.ui.spinBox_interval.value()
+            timeout_val = self.ui.spinBox_timeout.value()
+            payload_val = self.ui.spinBox_payloadsize.value()
+            isInfinite_val = self.ui.checkBox_infinite.isChecked()
+
+            # Task parametrelerini güncelle
+            self.task.interval_ms = interval_val
+            self.task.kwargs["timeout"] = timeout_val
+            self.task.kwargs["payload_size"] = payload_val
+            self.task.isInfinite = isInfinite_val
+
+            # Thread parametrelerini güncelle
             self.task.update_thread_parameters()
             self.close()  # pencereyi kapat
         except ValueError as e:
@@ -154,9 +148,13 @@ class MainWindow(QMainWindow):
         self.ui.iperf_rigth_menu.setHidden(True)
         self.ui.pushButton_apply.clicked.connect(self.add_iperfClient)
         self.iperf_target_to_row = {}
+
+        self.ui.label_bulksize.setHidden(True)
+        self.ui.lineEdit_bulksize.setHidden(True)
         #ping için değişkenler
         self.target_to_row = {}
         self.isInfinite= False
+        
             #ip addreslerini program başında ip.txt^den oku
         try:
             with open('ip.txt', 'r', encoding='utf-8') as output:
@@ -244,7 +242,7 @@ class MainWindow(QMainWindow):
         duration        = self.ui.lineEdit_duration.text() or None
         bandwidth       = self.ui.lineEdit_bandwidth.text() or None
         protocol        = self.ui.lineEdit_protocol.text() or None
-        bulksize        = self.ui.lineEdit.text() or None
+        bulksize        = self.ui.lineEdit_bulksize.text() or None
 
 
         #self.QThread_ping(server_hostname=server_hostname).run()#sadece bir kez çalışır
@@ -417,7 +415,7 @@ class MainWindow(QMainWindow):
                     menu.addAction("Ping Başlat", lambda: self.start_ping(address=address))
                 menu.addAction("Grafik Aç", lambda: self.open_graph(address=address))
                 menu.addAction("Beep", lambda: self.toggleBeep_by_address(address))
-                menu.addAction("Durdur", lambda: self.ip_stop(address=address, isToggle=True, isKill=False))
+                menu.addAction("Durdur", lambda: self.ip_stop(address=address, isToggle=True, isKill=True))
                 menu.addAction("Sil", lambda: self.deleteRowFromTable_ping(address=address))
                 menu.exec(self.ui.tableWidget_ping.mapToGlobal(event.pos()))
                 return True  # olayı tükettik

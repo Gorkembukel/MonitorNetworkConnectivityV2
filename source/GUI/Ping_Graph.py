@@ -20,6 +20,7 @@ class GraphWindow(QDialog):
         # Timer ile canlı güncelleme
         from PyQt5.QtCore import QTimer
         self.timer = QTimer(self)
+        
         self.timer.setInterval(100)#60fps için 17 ms
         self.timer.timeout.connect(self.update_plots)
         self.timer.start()
@@ -74,6 +75,8 @@ class GraphWindow(QDialog):
                     symbolPen=pens
                 )
             self._last_len = cur_len
+            if cur_len >2000 :
+                self.timer.setInterval(800)
     def closeEvent(self, e):
         # Timer güvenli kapatma
         if self.timer and self.timer.isActive():

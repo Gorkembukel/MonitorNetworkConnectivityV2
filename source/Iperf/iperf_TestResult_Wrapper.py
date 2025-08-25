@@ -43,12 +43,12 @@ class StreamInfo:
     cwnd: str = None
     stream_type: str = None
     omitted: bool = False
-
+    isReversed:bool = False
     local_cpu_percent: str = None
     local_cpu_user_sys: str = None
     remote_cpu_percent: str = None
     remote_cpu_user_sys: str = None
-
+    isFinished: bool = False  # test bitti mi
     
 class TestResult_Wrapper_sub(QObject):
     update_table_for_result_signal = pyqtSignal(object)
@@ -61,7 +61,7 @@ class TestResult_Wrapper_sub(QObject):
 
         self._stop = threading.Event()
 
-
+        
         self.stdout = None
         self.stderr = None
 
@@ -69,7 +69,8 @@ class TestResult_Wrapper_sub(QObject):
         self.local_port =None
         self.remote_ip = None
         self.remote_port = None
-
+        self._reverse_mode = False
+        self._isFinished = False
         #regez birkez komplie edilir
           # ---- REGEX KALIPLARI ----
         # [  5]  10.00-10.04 sec   135 MBytes  26.6 Gbits/sec   0   123 KBytes  (örnek)
@@ -92,11 +93,17 @@ class TestResult_Wrapper_sub(QObject):
         self.connection_re = re.compile(
             r'local\s+([\d\.]+)\s+port\s+(\d+)\s+connected\s+to\s+([\d\.]+)\s+port\s+(\d+)'
         )
+
+        self.reverse_re = re.compile(
+        r'^Reverse mode,\s*remote host\s+([\d\.]+)\s+is sending'
+        )
+        self.test_complete_re = re.compile(r'^Test Complete\. Summary Results:')
+
     def set_subproces(self,popen:Popen):# Client_subproces bu metot ile popen'i buraya aktarır
         self.Client_subproces = popen
         t = threading.Thread(target=self.task)#BUG
         t.start()
-    def set_std_outERR(self,stdout:io.StringIO,stderr):# Client_subproces bu metot ile popen'i buraya aktarır
+    def set_std_outERR(self,stdout:io.StringIO,stderr):# Client_subproces bu metot ile string io objesini buraya aktarır
         self.stdout = stdout
         self.stderr = stderr# bu boşta
         t = threading.Thread(target=self.task_withStdoutErr)#BUG thread hep açık kalıyor olabilir
@@ -118,10 +125,11 @@ class TestResult_Wrapper_sub(QObject):
             self.parse_iperf3_line(line)
             time.sleep(0.5)
 
-    def start(self):
+    def start(self):#bunu gui iperf çağırıyor ama eğer ssh tarafından iperf bilgileri gliyorsa çalışmamalı        
         self._stop.clear()
         t = threading.Thread(target=self.task_withStdoutErr)#BUG thread hep açık kalıyor olabilir
         t.start()
+    
     def stop(self):
         """Dışarıdan çağrıldığında döngüyü kırar"""
         print(f"[iperf_testresult_wrapper_sub    stop içi]    döngü durduruldu")
@@ -131,6 +139,8 @@ class TestResult_Wrapper_sub(QObject):
             self.parse_iperf3_line(line)
     
     def parse_iperf3_line(self, line: str):
+        
+        print(f"[iperf_testResult_wrapper parse içi]   is finishr")
         line = line.strip()
         if not line:
             return
@@ -143,7 +153,15 @@ class TestResult_Wrapper_sub(QObject):
             last.remote_cpu_percent  = cpu_match.group(3)
             last.remote_cpu_user_sys = f"({cpu_match.group(4)})"
             return
+        #Reversed mü
+        test_complete_match = self.test_complete_re.search(line)
+        if test_complete_match:
+            self._isFinished = True
+        reverse_match = self.reverse_re.search(line)
+        if reverse_match:
+            self._reverse_mode = True
 
+            return
         # bağlantı bilgisi
         conn_match = re.search(r"local ([\d\.]+) port (\d+) connected to ([\d\.]+) port (\d+)", line)
         if conn_match:
@@ -159,7 +177,20 @@ class TestResult_Wrapper_sub(QObject):
         m = self.interval_re.search(clean)
         if not m:
             return
+        elif self._isFinished:
+            stream = StreamInfo(
+            id="-----",
+            interval="-----",
+            transfer="-----",
+            bitrate="-----",
+            retr="-----",
+            cwnd="-----",
+            stream_type="-----",
+            omitted="-----",
+            isReversed=self._reverse_mode,
+            isFinished=self._isFinished
 
+        )
         stream = StreamInfo(
             id=m.group(1),
             interval=m.group(2),
@@ -168,9 +199,14 @@ class TestResult_Wrapper_sub(QObject):
             retr=m.group(5) or '',
             cwnd=m.group(6) or '',
             stream_type=('sender' if 'sender' in line else 'receiver' if 'receiver' in line else None),
-            omitted=omitted
+            omitted=omitted,
+            isReversed=self._reverse_mode,
+            isFinished=self._isFinished
+
         )
         self.streams.append(stream)
+        self._isFinished = False
+        self._reverse_mode =False
         
         
         
@@ -191,6 +227,8 @@ class TestResult_Wrapper_sub(QObject):
         print(f"Omitted   : {stream.omitted}")
         print(f"local cpu   : {stream.local_cpu_percent}")
         print(f"remote  cpu   : {stream.remote_cpu_percent}")
+        print(f"is reversed   : {stream.isReversed}")
+        print(f"is finished   : {stream.isFinished}")
         print("-----------------------------\n")
     def __del__(self):
         print(f"❌ TestResult_Wrapper_sub siliniyor: {self.hostName}")

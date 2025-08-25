@@ -220,12 +220,12 @@ class PingController(metaclass=SingletonMeta):
     def is_alive_ping(self,address:str):
         task = self.get_task(address=address)
         return task.is_alive()
+    
     def start_task(self,address:str):
         task = self.get_task(address=address)
-        if not task.thread:
-            task.start()
-        else:
-            print(f"{task} zaten başlatılmış")
+        if not task.is_alive():
+                task.start()
+
     def restart_task(self,address:str):
         task = self.get_task(address=address)
         if task.thread:

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1092</width>
-    <height>693</height>
+    <height>729</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -333,7 +333,7 @@
                   <item row="4" column="1">
                    <widget class="QPushButton" name="pushButton_infinitePing">
                     <property name="text">
-                     <string>infinite ping</string>
+                     <string>Loop</string>
                     </property>
                     <property name="icon">
                      <iconset resource="../resources.qrc">
@@ -624,6 +624,13 @@
                    <string>Client</string>
                   </attribute>
                   <layout class="QFormLayout" name="formLayout">
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>Target Server IP</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="1" column="1">
                     <widget class="QLineEdit" name="lineEdit_serverhostname">
                      <property name="sizePolicy">
@@ -633,7 +640,14 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>192.168.33.40</string>
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_6">
+                     <property name="text">
+                      <string>Port</string>
                      </property>
                     </widget>
                    </item>
@@ -645,25 +659,15 @@
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QLineEdit" name="lineEdit_omit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                     <property name="text">
+                      <string>5201</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1">
-                    <widget class="QLineEdit" name="lineEdit_duration">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_7">
+                     <property name="text">
+                      <string>Paralel Streams</string>
                      </property>
                     </widget>
                    </item>
@@ -675,6 +679,42 @@
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
+                     <property name="text">
+                      <string>1</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLineEdit" name="lineEdit_omit">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="label_9">
+                     <property name="text">
+                      <string>Duration (sec)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QLineEdit" name="lineEdit_duration">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>10</string>
+                     </property>
                     </widget>
                    </item>
                    <item row="7" column="1">
@@ -684,6 +724,16 @@
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>10</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QLabel" name="label_11">
+                     <property name="text">
+                      <string>Protocol</string>
                      </property>
                     </widget>
                    </item>
@@ -695,54 +745,42 @@
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_5">
                      <property name="text">
-                      <string>server hostname</string>
+                      <string>TCP</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_6">
+                   <item row="9" column="0">
+                    <widget class="QLabel" name="label_bulksize">
                      <property name="text">
-                      <string>port</string>
+                      <string>bulksize</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_7">
+                   <item row="9" column="1">
+                    <widget class="QLineEdit" name="lineEdit_bulksize">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="text">
-                      <string>num streams</string>
+                      <string/>
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_8">
+                   <item row="10" column="0">
+                    <widget class="QCheckBox" name="checkBox_reversed">
                      <property name="text">
-                      <string>omit</string>
+                      <string>Reversed</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="0">
-                    <widget class="QLabel" name="label_9">
+                   <item row="10" column="1">
+                    <widget class="QCheckBox" name="checkBox_zerocopy">
                      <property name="text">
-                      <string>duration</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="7" column="0">
-                    <widget class="QLabel" name="label_10">
-                     <property name="text">
-                      <string>bandwidth</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="8" column="0">
-                    <widget class="QLabel" name="label_11">
-                     <property name="text">
-                      <string>protocol</string>
+                      <string>ZeroCopy</string>
                      </property>
                     </widget>
                    </item>
@@ -797,34 +835,17 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="10" column="1">
-                    <widget class="QCheckBox" name="checkBox_zerocopy">
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_8">
                      <property name="text">
-                      <string>ZeroCopy</string>
+                      <string>Omitted Streams</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="9" column="1">
-                    <widget class="QLineEdit" name="lineEdit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="0">
-                    <widget class="QLabel" name="label_15">
+                   <item row="7" column="0">
+                    <widget class="QLabel" name="label_10">
                      <property name="text">
-                      <string>bulksize</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="10" column="0">
-                    <widget class="QCheckBox" name="checkBox_reversed">
-                     <property name="text">
-                      <string>Reversed</string>
+                      <string>Bandwidth (Mbit/sec)</string>
                      </property>
                     </widget>
                    </item>
@@ -902,7 +923,7 @@
     <string>SSH Servers</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="RightSSHdocker">
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -952,7 +973,7 @@
              <x>0</x>
              <y>0</y>
              <width>148</width>
-             <height>563</height>
+             <height>599</height>
             </rect>
            </property>
           </widget>
