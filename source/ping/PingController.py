@@ -122,7 +122,7 @@ class PingController(metaclass=SingletonMeta):
         print(f"[PingController init]  deneme")#BUG test için
         self.tasks: Dict[str, PingTask] = {}  # key = address, value = PingTask
         self.address_dict = {}#her ip key olup istenen çalışma parametreleri value olacak
-        self.stats_list: Dict[str, PingStats] = {}# FIXME normalde liste burası
+        self.stats_list: Dict[str, PingStats] = {}# Başalrda liste idi burası, şimdi dict
         
     def add_task(self, address: str,isInfinite: bool, duration: int ,interval_ms: int,isKill_Mod = False, **kwargs  ):
         if not is_valid_ip(address):
