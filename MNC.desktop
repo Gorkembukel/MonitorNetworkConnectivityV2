@@ -1,0 +1,10 @@
+[Desktop Entry]g
+Version=1.0
+Type=Application
+Name=MNC
+Comment=My Network Controller
+Exec=/home/gork/Desktop/Staj/MNC\ V2/.venv/bin/python -m test.TEST
+Path=/home/gork/Desktop/Staj/MNC V2
+Icon=utilities-terminal
+Terminal=false
+
