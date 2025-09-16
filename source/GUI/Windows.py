@@ -12,6 +12,8 @@ from PyQt5.QtCore import pyqtSignal,pyqtSlot,QTimer,Qt,QDateTime,QThread
 from PyQt5.QtWidgets import QMainWindow, QDockWidget,QAction,QTableWidgetItem,QDialog,QMessageBox
 
 #projenin kendi modülleri
+#ip list penceresi
+from source.GUI.ip_list_menu import Accounts_list_window
 
 #Iperf ile alakalı
 from source.Iperf.subproces_for_iperf import valid_fields
@@ -104,6 +106,7 @@ class MainWindow(QMainWindow):
         self.ui.actionAdd_iperf_Client.triggered.connect(self.change_tabTo_iperf)
         self.ui.actionAdd_ping.triggered.connect(self.change_tabTo_ping)
         self.ui.actionAdd_SSH_Client.triggered.connect(self.open_ssh_loginMenu)
+        self.ui.actionIP_List.triggered.connect(self.open_ip_list)
             #Iperf için önemli
         self.iperf_headers = self.application.get_tablewidget_iperf_header()
         self.valid_fields = valid_fields
@@ -210,7 +213,19 @@ class MainWindow(QMainWindow):
         def __delete__(self):
             print(f"[QThread_ping içi]    bu thread kapandı")
 
-    
+    def open_ip_list(self):
+        
+        # 1) Eğer daha önce oluşturulmamışsa oluştur
+        if not hasattr(self, 'accounts_window') or self.accounts_window is None:
+            
+            self.accounts_window = Accounts_list_window(parent=self)
+
+        # 2) Pencereyi gizlemek yerine sadece göster
+        if not self.accounts_window.isVisible():
+            self.accounts_window.show()
+        self.accounts_window.raise_()
+        self.accounts_window.activateWindow()
+
     def start_iperf(self,hostName):
         self.iperfController.start(hostName)
 
@@ -327,9 +342,7 @@ class MainWindow(QMainWindow):
         if not hasattr(self, 'loginMenu') or self.loginMenu is None:
             self.loginMenu = SSH_login(self)
         
-        # Pencere zaten kapatılmışsa, yeniden oluştur
-        if not self.loginMenu.isVisible():
-            self.loginMenu = SSH_login(self)
+        
 
         # Pencereyi göster ve öne getir
         self.loginMenu.show()

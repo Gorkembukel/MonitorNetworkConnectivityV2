@@ -44,6 +44,38 @@ class SSH_login(QDialog):
 
         #parent(mainWindow) veri alma
         self.client_controller:Client_Controller = Client_Controller()
+    def login_ssh_from_ip_list(self, ip,username,password):
+        hostName = str(ip)
+        username = str(username)
+        password = str(password)
+        port = 22
+
+        # Aynı hostname ile client var mı kontrol et
+        if hostName in self.client_controller.list_clients():
+            QtWidgets.QMessageBox.warning(self, "Uyarı", 
+                f"{hostName} zaten eklenmiş!")
+            return
+
+        #try:
+        self.client_controller.add_client(hostname=hostName, username=username, 
+                                password=password, port=port)
+        client_wrapper = self.client_controller.get_client(hostName)
+        print(f"[createClient] client_wrapper  {client_wrapper}")
+        # Bağlantı thread'i oluştur
+        self.connection_thread = ConnectionThread(client_wrapper)
+        self.connection_thread.connection_result.connect(self.handle_connection_result)
+        self.connection_thread.start()
+        
+        self.info_box = QtWidgets.QMessageBox(self)
+        self.info_box.setWindowTitle("Bilgi")
+        self.info_box.setText(f"{hostName} için bağlantı deneniyor...")
+        self.info_box.setIcon(QtWidgets.QMessageBox.Information)
+
+        # Kapat butonu ekliyoruz
+        close_button = self.info_box.addButton("Close", QtWidgets.QMessageBox.RejectRole)        
+        close_button.clicked.connect(self.info_box.close)  # Buton tıklanınca pencere kapanır
+
+        self.info_box.show()
     def login_ssh(self):
         hostName = self.ui.lineEdit_ip.text().strip()
         username = self.ui.lineEdit_username.text().strip()

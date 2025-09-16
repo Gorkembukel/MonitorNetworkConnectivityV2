@@ -16,7 +16,8 @@ from PyQt5.QtWidgets import QDialog,QApplication,QMainWindow,QTableWidgetItem,QS
 from QTDesigns.Window_for_ip_control import Ui_MainWindow as Ui_window_for_ip_list  
 from QTDesigns.ip_list_widget import Ui_Dialog as Ui_ssh_account
 
-
+#projenin kendi modülleri
+from source.GUI.little_menus import SSH_login
 
 # Bu python dosyasının bulunduğu dizin (root/source/gui/)
 path_of_this_module = Path(__file__).resolve().parent
@@ -44,6 +45,25 @@ def read_accounts():#TODO (ayrı threadde çalışması daha iyi olabilir)
             
    
    return accounts
+#Qthreadler
+# add acountda eklenen ip ve username zaten accounts da var mı
+class DuplicateCheckThread(QThread):
+   result = pyqtSignal(bool)  # True = duplicate bulundu, False = eklenebilir
+
+   def __init__(self, new_account, accounts_list):
+      super().__init__()
+      self.new_account = new_account
+      self.accounts_list = accounts_list
+
+   def run(self):
+      # Listeyi tara (O(n))
+      is_duplicate = any(
+         acc['ip'] == self.new_account['ip'] and acc['username'] == self.new_account['username']
+         for acc in self.accounts_list
+      )
+      self.result.emit(is_duplicate)
+   def __del__(self):
+      print("[DuplicateCheckThread içi  silindi]")
 
 #küçük menüler
 class AddAccountDialog(QDialog):
@@ -80,9 +100,11 @@ class AddAccountDialog(QDialog):
 
 class Item_Scrol_Area_widget(QDialog):
    instance_count = 0
-   def __init__(self, account: dict, parent= None):
+   #sinyal
+   connect_requested = pyqtSignal(dict)  # account bilgisi ile sinyal
+   def __init__(self, account: dict, parent= None, mainWindow= None):
       super().__init__(parent)
-      self.parent_window = parent
+      self.parent_window = mainWindow
       self.ui = Ui_ssh_account()
       self.ui.setupUi(self)
       self.account = account
@@ -94,6 +116,8 @@ class Item_Scrol_Area_widget(QDialog):
 
       #button bağlama
       self.ui.pushButton_del.clicked.connect(self.confirm_delete)
+      self.ui.pushButton_connect.clicked.connect(self.connect_to_ssh)
+
       #self.ui.pushButton_connect
       # Rengini index'e göre belirle
       light_color = "#f0f0f0"  # açık gri
@@ -108,7 +132,17 @@ class Item_Scrol_Area_widget(QDialog):
               
          
       """)
-
+   def connect_to_ssh(self):
+      # Eğer pencere zaten oluşturulmamışsa, oluştur
+      if not hasattr(self, 'loginMenu') or self.loginMenu is None:
+         self.parent_window.loginMenu = SSH_login(parent=self.parent_window)
+         
+      self.parent_window.loginMenu.login_ssh_from_ip_list(
+            ip=self.account['ip'],
+            username=self.account['username'],
+            password=self.account['password']
+      )
+       
    def confirm_delete(self):
         reply = QtWidgets.QMessageBox.question(
             self,
@@ -136,6 +170,7 @@ class Item_Scrol_Area_widget(QDialog):
 class Accounts_list_window(QMainWindow):
    def __init__(self, parent= None):
       super().__init__(parent)
+      self.parent_mainWindow = parent
       self.ui = Ui_window_for_ip_list()
       self.ui.setupUi(self)
       self.ui.rightFrame.hide()
@@ -159,7 +194,7 @@ class Accounts_list_window(QMainWindow):
 
    def list_to_widget(self):#TODO (ayrı threadde çalışması daha iyi olabilir) aldığı listedeki bilgilere göre scrol areada gözükecek widgetları oluşturur.
       for account in self.accounts:
-            item_widget = Item_Scrol_Area_widget(account=account, parent=self)
+            item_widget = Item_Scrol_Area_widget(account=account, parent=self, mainWindow=self.parent_mainWindow)
             # Eğer widget içinde account bilgisi gösterecek bir alan varsa doldurabilirsin:
             # item_widget.ui.label_ip.setText(account['ip'])
             self.scroll_layout.addWidget(item_widget)
@@ -167,14 +202,35 @@ class Accounts_list_window(QMainWindow):
         dialog = AddAccountDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             new_account = dialog.get_data()
-            self.accounts.append(new_account)
-            # Yeni widget oluştur ve scroll layouta ekle
-            item_widget = Item_Scrol_Area_widget(new_account,self)
-            self.scroll_layout.insertWidget(self.scroll_layout.count() - 1, item_widget)
             
-            # Dilersen yeni hesabı dosyaya kaydedebilirsin
-            with open(path_of_target_folder, "a", encoding="utf-8") as f:
-                f.write(f"{new_account['ip']};{new_account['username']};{new_account['password']}\n")
+             # 2️⃣ Thread ile kontrol başlat
+            self.check_thread = DuplicateCheckThread(new_account, self.accounts)
+            self.check_thread.result.connect(lambda is_dup: self.handle_duplicate_check(is_dup, new_account))
+            self.check_thread.start()
+            
+          
+
+   
+   # 3️⃣ Thread sonucu geldiğinde işleme
+   def handle_duplicate_check(self, is_duplicate, new_account):
+      if is_duplicate:
+         QtWidgets.QMessageBox.warning(
+               self,
+               "Duplicate Account",
+               "An account with this IP and username already exists!"
+         )
+         return
+
+      # Listeye ekle
+      self.accounts.append(new_account)
+
+      # Yeni widget oluştur ve scroll layouta ekle
+      item_widget = Item_Scrol_Area_widget(new_account, self)
+      self.scroll_layout.insertWidget(self.scroll_layout.count() - 1, item_widget)
+
+      # Dosyaya kaydet
+      with open(path_of_target_folder, "a", encoding="utf-8") as f:
+         f.write(f"{new_account['ip']};{new_account['username']};{new_account['password']}\n")
 if __name__ =='__main__':    
     
    app = QApplication(sys.argv)
