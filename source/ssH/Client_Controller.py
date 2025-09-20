@@ -26,6 +26,7 @@ class ClientWrapper:
         self.__username = username
         self.__password = password
         self.__port = port
+        self.is_connected: bool = False# bu alan ssh_window dan belirlenecek.
         self.stdobject = STD_object(self,"utf-8",2000)
 
         # Not: Client ctor’unun (hostname, username, password, port, osType) aldığını varsaydın; öyle bıraktım.

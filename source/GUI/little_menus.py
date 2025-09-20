@@ -124,7 +124,7 @@ class SSH_login(QDialog):
         print(f"[handle connection thread] client_wrapper  {clientWrapper}")
         if success:
             # Başarılıysa widget ekle
-            self.parent.add_client_widget(hostname, username, clientWrapper=clientWrapper)
+            widget = self.parent.add_client_widget(hostname, username, clientWrapper=clientWrapper)
 
             success_info_box = QtWidgets.QMessageBox(self)
             success_info_box.setWindowTitle("Bilgi")
@@ -137,7 +137,7 @@ class SSH_login(QDialog):
             close_button.clicked.connect(self.close)
 
             success_info_box.show()
-            
+            widget.start_status_thread()
                
             
         else:

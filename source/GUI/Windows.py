@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
         self.ui.scrollArea.verticalScrollBar().setValue(
             self.ui.scrollArea.verticalScrollBar().maximum()
         )
-
+        return  client_widget
     
     #Ping için ##########################################################################3333
     def startAll(self):
