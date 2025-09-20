@@ -1,4 +1,4 @@
-import sys
+import sys,os
 
 from source.GUI.Windows import MainWindow
 
@@ -70,5 +70,5 @@ class Applicaton:
          self.sshController = SSH_Client_Controller()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     Applicaton()

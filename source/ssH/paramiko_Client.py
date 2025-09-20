@@ -13,6 +13,7 @@ class Client:
     # Private metot: bağlantı nesnesi oluşturur
     def __create_client(self):
         client = paramiko.SSHClient()
+        client.load_system_host_keys()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())    
         return client
 
@@ -20,7 +21,7 @@ class Client:
     def connect(self):
         if self.__client is None:
             self.__client = self.__create_client()
-            self.__client.connect(timeout=10,#Settingsen değiştirilebilir
+            self.__client.connect(timeout=10,#TODO Settingsen değiştirilebilir yapılabilir
                 hostname=self.__hostname,
                 port=self.__port,
                 username=self.__username,
@@ -75,7 +76,12 @@ class Client:
             return stdout, stderr
         else:
             raise ConnectionError("Önce connect() metodunu çağırın.")
-    
+    def invoke_shell(self):
+        if self.__client:
+            channel = self.__client.invoke_shell()
+            return channel
+        else:
+            raise ConnectionError("Önce connect() metodunu çağırın.")
     # Public metot: SFTP bağlantısı başlatır. Dosya aktarımı için
     def start_sftp(self):
         if self.__client:
@@ -102,10 +108,11 @@ class Client:
 
     #bağlantı var mı?
     def is_connect(self):
-        if self.__client:
+        if self.__client.get_transport() is not None:
             return True
         else:
             return False
+        
     # Public metot: Bağlantıyı kapatma
     def close(self):
         if self.__sftp:

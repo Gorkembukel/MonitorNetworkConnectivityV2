@@ -107,7 +107,7 @@ background: transparent;
    <property name="geometry">
     <rect>
      <x>550</x>
-     <y>0</y>
+     <y>6</y>
      <width>61</width>
      <height>25</height>
     </rect>
@@ -130,7 +130,7 @@ background: transparent;
    <property name="geometry">
     <rect>
      <x>448</x>
-     <y>0</y>
+     <y>6</y>
      <width>101</width>
      <height>25</height>
     </rect>

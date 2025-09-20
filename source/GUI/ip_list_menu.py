@@ -104,6 +104,7 @@ class Item_Scrol_Area_widget(QDialog):
    connect_requested = pyqtSignal(dict)  # account bilgisi ile sinyal
    def __init__(self, account: dict, parent= None, mainWindow= None):
       super().__init__(parent)
+      self.parent = parent
       self.parent_window = mainWindow
       self.ui = Ui_ssh_account()
       self.ui.setupUi(self)
@@ -117,12 +118,12 @@ class Item_Scrol_Area_widget(QDialog):
       #button bağlama
       self.ui.pushButton_del.clicked.connect(self.confirm_delete)
       self.ui.pushButton_connect.clicked.connect(self.connect_to_ssh)
-
+      
       #self.ui.pushButton_connect
       # Rengini index'e göre belirle
       light_color = "#f0f0f0"  # açık gri
       dark_color  = "#dcdcdc"  # koyu gri
-      bg_color = light_color if Item_Scrol_Area_widget.instance_count % 2 == 0 else dark_color
+      bg_color = dark_color#light_color if Item_Scrol_Area_widget.instance_count % 2 == 0 else dark_color
       #style sheet ayarları
       self.setStyleSheet(f"""
       QDialog {{
@@ -150,19 +151,20 @@ class Item_Scrol_Area_widget(QDialog):
             "Are you sure?",
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
         )
-        if reply == QtWidgets.QMessageBox.Yes and self.parent_window:
+        if reply == QtWidgets.QMessageBox.Yes and self.parent:
             # parent layout'tan kaldır
-            self.parent_window.scroll_layout.removeWidget(self)
+            self.parent.scroll_layout.removeWidget(self)
             self.setParent(None)
             self.deleteLater()
 
-            # parent accounts listesinden sil
-            if self.account in self.parent_window.accounts:
-               self.parent_window.accounts.remove(self.account)
-               
+            # parent accounts listesinden  ve item_widget listesinden sil
+            if self.account in self.parent.accounts:
+               self.parent.accounts.remove(self.account)
+            if self in self.parent.item_widgets:
+                self.parent.item_widgets.remove(self)
             # dosyayı tekrar yaz
             with open(path_of_target_folder, "w", encoding="utf-8") as f:
-                for acc in self.parent_window.accounts:
+                for acc in self.parent.accounts:
                     f.write(f"{acc['ip']};{acc['username']};{acc['password']}\n")
    def __del__(self):      
       Item_Scrol_Area_widget.instance_count -= 1
@@ -177,7 +179,7 @@ class Accounts_list_window(QMainWindow):
       self.setWindowTitle("SSH Account Management")
 
       self.accounts = read_accounts()#ip_list.txt'ini okur
-
+      self.item_widgets = [] # bütün  Item_Scrol_Area_widget burada tutulacak connect all kolay çalışsın diye
       # Scroll Area içinde bir widget container oluştur      
       self.scroll_layout = QtWidgets.QVBoxLayout(self.ui.scrollAreaWidgetContents)      
       self.scroll_layout.setContentsMargins(0, 0, 0, 0)
@@ -190,11 +192,15 @@ class Accounts_list_window(QMainWindow):
       dark_color  = "#dcdcdc"  # koyu gri
       #button bağlama
       self.ui.pushButton_addaccount.clicked.connect(self.add_account)
-
-
+      self.ui.pushButton_connectall.clicked.connect(self.connect_all)
+   def connect_all(self):
+       if self.item_widgets:
+           for item_widget in self.item_widgets:
+               item_widget.ui.pushButton_connect.click()
    def list_to_widget(self):#TODO (ayrı threadde çalışması daha iyi olabilir) aldığı listedeki bilgilere göre scrol areada gözükecek widgetları oluşturur.
       for account in self.accounts:
             item_widget = Item_Scrol_Area_widget(account=account, parent=self, mainWindow=self.parent_mainWindow)
+            self.item_widgets.append(item_widget)
             # Eğer widget içinde account bilgisi gösterecek bir alan varsa doldurabilirsin:
             # item_widget.ui.label_ip.setText(account['ip'])
             self.scroll_layout.addWidget(item_widget)

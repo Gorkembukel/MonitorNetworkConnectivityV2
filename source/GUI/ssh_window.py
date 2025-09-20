@@ -1,6 +1,9 @@
 
-import sys,time
+import sys,time,re
 
+from icmplib import ping#ssh bağlantı kontrolü için
+
+from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal , pyqtSlot, Qt, QThread
@@ -18,6 +21,27 @@ from source.Iperf.iperf_TestResult_Wrapper import TestResult_Wrapper_sub
 from source.ssH.Client_Controller import Client_Controller, ClientWrapper
 from source.GUI.GUI_graph_iperf import GraphWindow_iperf
 
+class LiveShellThread(QThread):# bu thread live shell içindir
+    output_signal = pyqtSignal(str)
+
+    def __init__(self, channel):
+        super().__init__()
+        self.channel = channel
+        self._running = True
+
+    def run(self):        
+        ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')# renkler olmasın diye yoksa tuhaf karakterler gözüküyor
+
+        while self._running:
+            if self.channel.recv_ready():
+                data = self.channel.recv(4096).decode()
+                data = ansi_escape.sub('', data)  # ANSI kodlarını temizle
+                self.output_signal.emit(data)
+            time.sleep(0.05)
+
+    def stop(self):
+        self._running = False
+
 class SSHClient(QMainWindow):
     def __init__(self,testResultWrapper:TestResult_Wrapper_sub,hostname,clientWrapper:ClientWrapper,user,parent =None ):
         super().__init__(parent)
@@ -25,7 +49,8 @@ class SSHClient(QMainWindow):
         self.ui.setupUi(self)
         self.hostname = hostname
         self.testResultWrapper = testResultWrapper
-        
+        self.ui.plainTextEdit.setReadOnly(True)
+        self.channel = None
         self.clientWrapper = clientWrapper
        
         if self.clientWrapper.os_type == "windows":
@@ -37,17 +62,55 @@ class SSHClient(QMainWindow):
             self.ui.pushButton_iperf.setDisabled(True)
             self.ui.tabWidget.setTabVisible(1,False)
 
-        self.ui.pushButton_openGraph.clicked.connect(self.open_graph_menu)
         self.ui.tabWidget.setTabVisible(0,False)
-        self.ui.pushButton_liveShell.setDisabled(True)
+        
+
+        self.ui.pushButton_openGraph.clicked.connect(self.open_graph_menu)        
         self.ui.pushButton_iperf.clicked.connect(self.open_iperf_menu)
         self.ui.pushButton_ping.clicked.connect(self.open_ping_menu)
-
+        self.ui.pushButton_liveShell.clicked.connect(self.open_liveShell)
+        
+        self.ui.pushButton_enter.clicked.connect(lambda: self.send_live_command(self.channel))
         """self.stats_timer = QTimer(self)
         self.stats_timer.setInterval(100)  # 1000ms = 1 saniye#60fps için girilen değr
         self.stats_timer.timeout.connect(self.update_plaintext)
         self.stats_timer.start()"""
 
+    def append_live_output(self, text):
+        self.ui.plainTextEdit.appendPlainText(text)
+
+        
+        cursor = self.ui.plainTextEdit.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.ui.plainTextEdit.setTextCursor(cursor)
+        self.ui.plainTextEdit.ensureCursorVisible()
+    def send_live_command(self, channel):
+        cmd = self.ui.lineEdit_entercomand.text().strip()
+        if not cmd:
+            return   
+        if cmd == "clear":
+            self.ui.plainTextEdit.clear()     
+        channel.send(cmd + "\n")             
+        self.ui.lineEdit_entercomand.clear()
+
+
+       
+    def open_liveShell(self):
+        if not self.clientWrapper:
+            print("SSH bağlantısı bulunamadı")
+            return
+        self.ui.tabWidget.setTabVisible(0,True)
+        self.ui.tabWidget.setCurrentIndex(0)
+        self.channel = self.clientWrapper.take_live_shell_channel()
+          # Thread başlat
+        self.live_shell_thread = LiveShellThread(self.channel)
+        self.live_shell_thread.output_signal.connect(self.append_live_output)
+        self.live_shell_thread.start()
+
+        # Input line edit sinyali
+        self.ui.lineEdit_entercomand.returnPressed.connect(
+            lambda: self.send_live_command(self.channel)
+        )
     def open_graph_menu(self):
         """
         'Grafikler' için küçük bir açılır menü (QMenu) gösterir.
@@ -364,19 +427,33 @@ class SSHClient(QMainWindow):
         self.ui.plainTextEdit_iperf.setTextCursor(cursor)
         self.ui.plainTextEdit_iperf.ensureCursorVisible()
         
-        
+    def closeEvent(self, event):
+        if hasattr(self, "live_shell_thread"):
+            self.live_shell_thread.stop()
+            self.live_shell_thread.wait()
+        event.accept()
             
-class StatusWorker(QtCore.QObject):# her client_widget summary'nin client bağlantısını kontrol eden qthread
-    tick = pyqtSignal()
-    def __init__(self):
-        super().__init__()
-        self._running = True
-    def start(self):
-        while self._running:
-            self.tick.emit()           # UI slot’u tetikler
-            QtCore.QThread.sleep(2)
-    def stop(self):
-        self._running = False       
+class StatusThread(QThread):
+        status_signal = pyqtSignal(bool)  # True = bağlı, False = bağlı değil
+
+        def __init__(self, hostname, interval=2):
+            super().__init__()
+            self.hostname = hostname
+            self.interval = interval
+            self._running = True
+
+        def run(self):
+            while self._running:
+                try:
+                    response = ping(self.hostname, count=1, timeout=1)
+                    if response.is_alive:
+                        self.status_signal.emit(response.is_alive)
+                except Exception:
+                    self.status_signal.emit(False)
+                self.sleep(self.interval)
+
+        def stop(self):
+            self._running = False
 
 # bu SSH_client window içindeki scroll area da gösterilecek olan widget
 class ClientWidget_summary(QtWidgets.QWidget):
@@ -386,6 +463,7 @@ class ClientWidget_summary(QtWidgets.QWidget):
         self.hostname = hostname
         self.username = username
         self.clientWrapper = clientWrapper
+        self.status_thread = None
         self.testResultWrapper = TestResult_Wrapper_sub(self.hostname)
 
         print(f"[client summary] clientwrapper { self.clientWrapper}")
@@ -411,33 +489,29 @@ class ClientWidget_summary(QtWidgets.QWidget):
         )
         
         #self.setMinimumHeight()  # Sabit bir yükseklik belirle
-        self._thread = QtCore.QThread(self)
-        self._worker = StatusWorker()
-        self._worker.moveToThread(self._thread)
-        self._worker.tick.connect(self.update_connection_status)
-        self._thread.started.connect(self._worker.start)
-        self._thread.start()
-        self.destroyed.connect(self._cleanup_thread)
         
-    def _cleanup_thread(self):
-        try:
-            self._worker.stop()
-            self._thread.quit()
-            self._thread.wait()
-        except Exception:
-            pass
+        
+          # Status QThread başlat
+        
+    
 
-    def delete(self):
-        self._cleanup_thread()
-        self.testResultWrapper.stop()
-        self.delete_requested.emit(self.hostname)  # Emit signal before actual deletion
-        client_controller.remove_client(self.hostname)
-        self.deleteLater()  # Schedule widget for deletion
-    def _status_loop(self):
-        while self.clientWrapper:
-            self.update_connection_status()
 
-            time.sleep(2)  # ✅ burada kullanmak güvenli
+    def start_status_thread(self):
+        self.status_thread = StatusThread(self.hostname)
+        self.status_thread.status_signal.connect(self._update_label_status)
+        self.status_thread.start()
+    
+
+    @pyqtSlot(bool)
+    def _update_label_status(self, is_alive):
+        print(f"[StatusThread] {self.hostname} alive: {is_alive}")
+
+        if is_alive:
+            self.ui.label_status.setText("🟢 Bağlı")
+            self.ui.label_status.setStyleSheet("color: green;")
+        else:
+            self.ui.label_status.setText("🔴 Bağlı Değil")
+            self.ui.label_status.setStyleSheet("color: red;")
     def update_connection_status(self):
         try:
             client = self.clientWrapper
@@ -446,13 +520,24 @@ class ClientWidget_summary(QtWidgets.QWidget):
                 self.ui.label_status.setStyleSheet("color: green;")
             else:
                 self.ui.label_status.setText("🔴 Bağlı Değil")
+                self.ui.label_status.setStyleSheet("color: red;")
         except:
             if self.clientWrapper:
                 self.ui.label_status.setText("⚪ Client Yok")
     def open_sshClient(self):
         self.window = SSHClient(self.testResultWrapper,hostname=self.hostname, user=self.username, clientWrapper=self.clientWrapper)
         self.window.show()
-
+    def delete(self):
+    # Thread varsa durdur
+        if hasattr(self, 'status_thread'):
+            if self.status_thread is not None:
+                self.status_thread.stop()
+                self.status_thread.wait()
+        self.testResultWrapper.stop()
+        self.delete_requested.emit(self.hostname)  # Emit signal before actual deletion
+        client_controller.remove_client(self.hostname)
+        self.deleteLater()  # Schedule widget for deletion
+        
         
 client_controller = Client_Controller()
 class SSH_Client_Window(QMainWindow):
@@ -512,9 +597,10 @@ class SSH_Client_Window(QMainWindow):
         print(f"[handle connection thread] client_wrapper  {clientWrapper}")
         if success:
             # Başarılıysa widget ekle
-            self.add_client_widget(hostname, username, clientWrapper=clientWrapper)
+            widget = self.add_client_widget(hostname, username, clientWrapper=clientWrapper)
             QtWidgets.QMessageBox.information(self, "Başarılı", 
                 f"{hostname} bağlantısı kuruldu. OS: {clientWrapper.os_type}")
+            widget.start_status_thread()
         else:
             # Başarısızsa client'ı temizle
             client_controller.remove_client(hostname)

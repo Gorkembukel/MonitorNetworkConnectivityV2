@@ -55,10 +55,10 @@ class ClientWrapper:
     def username(self) -> str:
         return self.__username
 
-    @property
+    
     def is_connected(self) -> bool:
         # Senin Client içinde is_connect alanının olduğuna göre:
-        return getattr(self.client, "is_connect", False)
+        return self.client.is_connect()
 
     def get_stdobject(self):
         return self.stdobject
@@ -115,6 +115,8 @@ class ClientWrapper:
         self.stdobject.register_stream(name,stdout=stdout,stderr=stderr)
         self.stdobject.start(name)
         return self.stdobject
+    def take_live_shell_channel(self):
+        return self.client.invoke_shell()
     
 class SingletonMeta(type):# Controller'ı singleton yapmak için
     """
