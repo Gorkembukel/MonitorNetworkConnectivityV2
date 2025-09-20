@@ -39,10 +39,7 @@ class Applicaton:
             self.set_tablewidget_iperf_header()
 
              #ana pencerenin başlatılması #en sonda olması daha sağlıklı olur
-            self.app = QApplication(sys.argv)
-            self.mainWindow = MainWindow(applicaton=self)    
-            self.mainWindow.show()      
-            sys.exit(self.app.exec())# bu en sonda olmalı
+    
     
     #ping için header bilgilerini get set
     def set_tablewidget_ip_header(self):
@@ -71,4 +68,8 @@ class Applicaton:
 
 
 if __name__ == "__main__":    
-    Applicaton()
+    app = QApplication(sys.argv)
+    application = Applicaton()  # Sadece veri ve controller yönetimi için
+    mainWindow = MainWindow(applicaton=application)
+    mainWindow.show()
+    sys.exit(app.exec())

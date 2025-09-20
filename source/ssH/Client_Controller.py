@@ -99,12 +99,15 @@ class ClientWrapper:
 
 
 
-    def open_iperf3(self, **kwargs) ->STD_object:
-        name ="iperf"
-        base_cmd = self.executor.comand_Iperf3(**kwargs)        
-        
-        stdout,stderr = self._run_cmd(base_cmd)
-        self.stdobject.register_stream(name,stdout=stdout,stderr=stderr)
+    def open_iperf3(self, **kwargs) -> STD_object:
+        role = kwargs.get("role", "client")
+        if role == "client":
+            name = "iperf_client"
+        else:
+            name = "iperf_server"
+        base_cmd = self.executor.comand_Iperf3(**kwargs)
+        stdout, stderr = self._run_cmd(base_cmd)
+        self.stdobject.register_stream(name, stdout=stdout, stderr=stderr)
         self.stdobject.start(name)
         return self.stdobject
     

@@ -49,7 +49,10 @@ class SSHClient(QMainWindow):
         self.ui.setupUi(self)
         self.ui.centralwidget.setObjectName("SSHClient")
         self.hostname = hostname
-        self.testResultWrapper = testResultWrapper
+        self.testResultWrapper = testResultWrapper#client için
+        self.testResultWrapper_server = TestResult_Wrapper_sub(self.hostname)
+        
+
         self.ui.plainTextEdit.setReadOnly(True)
         self.channel = None
         self.clientWrapper = clientWrapper
@@ -64,19 +67,23 @@ class SSHClient(QMainWindow):
             self.ui.tabWidget.setTabVisible(1,False)
 
         self.ui.tabWidget.setTabVisible(0,False)
-        
+        self.ui.tabWidget.setTabVisible(1,False)
+        self.ui.plainTextEdit_iperfC.setHidden(True)
+        self.ui.plainTextEdit_iperfS.setHidden(True)
 
-        self.ui.pushButton_openGraph.clicked.connect(self.open_graph_menu)        
+        self.ui.frame_leftiperfC.setHidden(True)
+        self.ui.frame_rigthiperfS.setHidden(True)
+
+        self.ui.pushButton_opengraphC.clicked.connect(self.show_iperf_graphC)
+        self.ui.pushButton_opengraphS.clicked.connect(self.show_iperf_graphS)
+        #self.ui.pushButton_openGraph.clicked.connect(self.open_graph_menu)        
         self.ui.pushButton_iperf.clicked.connect(self.open_iperf_menu)
         self.ui.pushButton_ping.clicked.connect(self.open_ping_menu)
         self.ui.pushButton_liveShell.clicked.connect(self.open_liveShell)
         
         self.ui.pushButton_enter.clicked.connect(lambda: self.send_live_command(self.channel))
 
-        self.stats_timer = QTimer(self)
-        self.stats_timer.setInterval(100)  # 1000ms = 1 saniye#60fps için girilen değr
-        self.stats_timer.timeout.connect(self.check_is_connected)
-        self.stats_timer.start()
+       
     def check_is_connected(self):
         print(f"[check_is_connected--------------] {self.clientWrapper.is_connected}  ")
         if self.clientWrapper.is_connected:
@@ -145,10 +152,17 @@ class SSHClient(QMainWindow):
         btn = self.ui.pushButton_openGraph
         pos = btn.mapToGlobal(btn.rect().bottomLeft())
         menu.exec_(pos)
-    def show_iperf_graph(self):
+    def show_iperf_graphC(self):
         self.testResultWrapper.start()
         print(f"[ssh_window show iperf içi] {self.testResultWrapper.local_ip}   ")        
         self.window = GraphWindow_iperf(self.testResultWrapper)
+        
+        self.window.setWindowFlags(Qt.Window | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
+        self.window.show()
+    def show_iperf_graphS(self):
+        self.testResultWrapper.start()
+        print(f"[ssh_window show iperf içi] {self.testResultWrapper_server.local_ip}   ")        
+        self.window = GraphWindow_iperf(self.testResultWrapper_server)
         
         self.window.setWindowFlags(Qt.Window | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
         self.window.show()
@@ -387,6 +401,7 @@ class SSHClient(QMainWindow):
         # Butonlar
         button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(lambda: self.run_iperf(dialog))
+        button_box.accepted.connect(lambda: self.ui.tabWidget.setTabVisible(1,True))
         button_box.rejected.connect(dialog.reject)
 
         layout.addWidget(role_group)
@@ -417,29 +432,43 @@ class SSHClient(QMainWindow):
             if not self.clientWrapper:
                 print("SSH bağlantısı bulunamadı")
             print(f"[STDOUT öncesi ]     --------------")
-            self.clientWrapper.open_iperf3(**params).stdout_chunk.connect(self.update_plaintext)
-            stdout,stderr = self.clientWrapper.stdobject.get_sdt_outErr("iperf")
 
-            print(f"[ssh_window    run_iperf içi]     {stdout.getvalue()}")
-            self.testResultWrapper.set_std_outERR(stdout=stdout,stderr=stderr)
+            self.clientWrapper.open_iperf3(**params).stdout_chunk.connect(self.update_plaintext)
             
+            stream_name = "iperf_server" if role == "server" else "iperf_client"
+            # Uygun frame'i görünür yap
+            if stream_name == "iperf_server":
+                self.ui.frame_rigthiperfS.setHidden(False)
+                stdout, stderr = self.clientWrapper.stdobject.get_sdt_outErr(stream_name)
+                self.testResultWrapper_server.set_std_outERR(stdout=stdout, stderr=stderr)
+            elif stream_name == "iperf_client":
+                self.ui.frame_leftiperfC.setHidden(False)
+
+            stdout, stderr = self.clientWrapper.stdobject.get_sdt_outErr(stream_name)
+            
+            self.testResultWrapper.set_std_outERR(stdout=stdout, stderr=stderr)
         except Exception as e:
-             QtWidgets.QMessageBox.warning(self, "Uyarı", str(e))
+            QtWidgets.QMessageBox.warning(self, "Uyarı", str(e))
 
     @pyqtSlot(str,str)
     def update_plaintext(self,name:str , data:str):
-        if name !="iperf":# stdout_chunk sinyallerinden sadece iperf olan gelsin
-            return
+        print(f"[ssh_window update_plaintext içi ++++++++++] {name}   {data} ")
+        if name == "iperf_client":
+            self.ui.plainTextEdit_iperfC.setHidden(False)
+            self.ui.plainTextEdit_iperfC.appendPlainText(data)
+            cursor = self.ui.plainTextEdit_iperfC.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            self.ui.plainTextEdit_iperfC.setTextCursor(cursor)
+            self.ui.plainTextEdit_iperfC.ensureCursorVisible()
+        elif name == "iperf_server":
+            self.ui.plainTextEdit_iperfS.setHidden(False)
+            self.ui.plainTextEdit_iperfS.appendPlainText(data)
+            cursor = self.ui.plainTextEdit_iperfS.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            self.ui.plainTextEdit_iperfS.setTextCursor(cursor)
+            self.ui.plainTextEdit_iperfS.ensureCursorVisible()
         
-        
-        self.ui.plainTextEdit_iperf.appendPlainText(data)
-
-        # İmleci sona taşı ve görünür kıl (otomatik alt kaydırma)
-        cursor = self.ui.plainTextEdit_iperf.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        self.ui.plainTextEdit_iperf.setTextCursor(cursor)
-        self.ui.plainTextEdit_iperf.ensureCursorVisible()
-        
+            
     def closeEvent(self, event):
         if hasattr(self, "live_shell_thread"):
             self.live_shell_thread.stop()
@@ -691,6 +720,7 @@ class SSH_Client_Window(QMainWindow):
     def get_clientController(self):# şimdilik scroll layout döndürür
         global client_controller
         return self.clientWidgets
+
 def main():
     app = QApplication(sys.argv)
     window = SSH_Client_Window()
