@@ -75,6 +75,9 @@ After building, you can run the application in one of two ways:
   - <img width="1113" height="785" alt="nmc-ping-menu" src="https://github.com/user-attachments/assets/c8c9f3ce-03e6-4702-b1cd-8a12b546e8b8" />
   - You can use Open Menu button to adding/deleting pings.
   - Application will save your last added pings if list is not empy while closing it self.
+  - <img width="1104" height="778" alt="nmc-ping-menu open" src="https://github.com/user-attachments/assets/811beeaa-06a9-4a97-a9cb-7b9e0187bba5" />
+  - You can add or delete ip's at second step. Change will applies to table at left side.
+
 ---
 ## 📌 Notes
 
