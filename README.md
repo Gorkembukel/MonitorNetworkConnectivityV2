@@ -78,7 +78,14 @@ After building, you can run the application in one of two ways:
   - <img width="1104" height="778" alt="nmc-ping-menu open" src="https://github.com/user-attachments/assets/811beeaa-06a9-4a97-a9cb-7b9e0187bba5" />
   - You can add or delete ip's to ip section.For sending pings with out a time constrain you can use loop button. Change will applies to table at left side.
   - <img width="1110" height="773" alt="2-nmc-ping-menu open add-pings" src="https://github.com/user-attachments/assets/c2829491-47cf-42a1-b02d-53d40aeb1eeb" />
-  - You can click with left and right mouse buttons to rows in table for acces to viable options
+  - You can click with left and right mouse buttons to rows in table for acces to vital options
+  - <img width="1105" height="789" alt="nmc-ping-menu open add-pings start_all" src="https://github.com/user-attachments/assets/94f09c8b-4da8-484b-82e8-0c3502a76a57" />
+  - When you left click desired ip's row 
+  - <img width="1101" height="761" alt="nmc-ping-menu open add-pings start_all leftClick" src="https://github.com/user-attachments/assets/4d417917-2b26-45e8-9e77-e660d4b248b5" />
+  - You can configur parameters without stoping sending pings
+  - If you right click you can acces those options
+  - <img width="1001" height="703" alt="nmc-ping-menu open add-pings start_all rightClick menu" src="https://github.com/user-attachments/assets/d1162c0f-37a0-4f59-9882-44d94a884bc3" />
+  - The beep will only work if the terminal permits it to "\a".
 ---
 ## 📌 Notes
 
