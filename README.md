@@ -90,8 +90,16 @@ After building, you can run the application in one of two ways:
   - <img width="1836" height="1046" alt="nmc-ping-menu open add-pings start_all rightClick menu  graph reset zoom" src="https://github.com/user-attachments/assets/85e596e1-1c2e-4abd-ae16-ffaba0b987eb" />
   - You can use left click to zoom selected area or rigth click to changing scale.
 ## Iperf3
+---
   - <img width="1113" height="773" alt="nmc-iperf-menu" src="https://github.com/user-attachments/assets/9922488f-a8d5-4812-a15e-2c5432b8e872" />
+  - You can use toolbar CTRL + F or you can select iperf tab at the bottom and Open menu button.
+---
+  - <img width="1129" height="778" alt="nmc-iperf-menu add_iperfClient" src="https://github.com/user-attachments/assets/39a6aba4-e13d-4787-9cbf-b261eb3ea730" />
+  - You can use iperf3 -c with this section. If you need to open iperf3 server at remote you can use ssh with this applicaton. More at this later
+---
+  - <img width="1096" height="771" alt="nmc-iperf-menu add_iperfClient run" src="https://github.com/user-attachments/assets/8857ed9e-1167-4e51-9778-60418897fa74" />
 
+---
 ---
 ## 📌 Notes
 
