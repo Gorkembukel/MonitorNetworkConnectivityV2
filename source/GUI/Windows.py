@@ -98,6 +98,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         #MainWindow ile alakalı kurulumlar
+        self.setWindowTitle("Network Connectivity Monitor Window")
         self._build_view_menu()#View menu'u doldurur
 
         
@@ -581,14 +582,14 @@ class MainWindow(QMainWindow):
         # Ayırıcı + Hepsini Göster/Gizle
         self.ui.menuView.addSeparator()
 
-        show_all = QAction("Show All", self)
+        show_all = QAction("Show All Docks", self)
         show_all.triggered.connect(lambda: self._show_all(docks))
         self.ui.menuView.addAction(show_all)
 
-        hide_all = QAction("Hide All", self)
+        hide_all = QAction("Hide All Docks", self)
         hide_all.triggered.connect(lambda: self._hide_all(docks))
         self.ui.menuView.addAction(hide_all)
-
+        self.ui.menuView.addSeparator()
         reorder_ping_header = QAction("Reorder Ping Table Header", self)
         reorder_ping_header.triggered.connect(self._reorder_ping_table_header)
         self.ui.menuView.addAction(reorder_ping_header)

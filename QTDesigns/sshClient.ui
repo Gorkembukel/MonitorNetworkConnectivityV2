@@ -192,19 +192,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_openGraph">
-           <property name="maximumSize">
-            <size>
-             <width>20</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>O</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>

@@ -33,7 +33,7 @@ class GraphWindow(QDialog):
         self.last_data_length = 0
         self.last_timeout_value = stat_obj.timeOut
 
-        self.setWindowTitle("Ping RTT vs Time")
+        self.setWindowTitle("RTT Graph for " + self.stat_obj.target)
         self.resize(800, 400)
         layout = QVBoxLayout(self)
         self.setLayout(layout)
@@ -60,7 +60,7 @@ class GraphWindow(QDialog):
         # QTimer ile otomatik güncelleme
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(500)  #TODO settingsen değiştirilebilir belki 1 saniyede bir güncelle
+        self.timer.start(2000)  #TODO settingsen değiştirilebilir belki 1 saniyede bir güncelle
 
         self.update_plot()  # İlk çizim
 
@@ -70,40 +70,42 @@ class GraphWindow(QDialog):
             self.last_data_length = len(self.rttlist)
             self.last_timeout_value = self.stat_obj.timeOut
             
-            # Tüm verileri işle
-            times = []
-            values = []
-            colors = []
+            # Yalnızca yeni eklenen verileri işle
+            start_idx = len(self.cached_times)
             
-            for i in range(len(self.rttlist)):
-                times.append(self.timeStamp[i])
+            # Eğer timeout değeri değiştiyse tüm renkleri yeniden hesapla
+            if self.last_timeout_value != self.stat_obj.timeOut:
+                start_idx = 0
+            
+            # Yeni verileri ekle
+            new_times = []
+            new_values = []
+            new_colors = []
+            
+            for i in range(start_idx, len(self.rttlist)):
+                new_times.append(self.timeStamp[i])
                 
                 if self.rttlist[i] is not None:
-                    values.append(self.rttlist[i])
-                    colors.append('b')  # Mavi - geçerli RTT
+                    new_values.append(self.rttlist[i])
+                    new_colors.append('b')  # Mavi - geçerli RTT
                 else:
-                    values.append(self.stat_obj.timeOut)
-                    colors.append('r')  # Kırmızı - timeout
+                    new_values.append(self.stat_obj.timeOut)
+                    new_colors.append('r')  # Kırmızı - timeout
             
-            # Numpy array'lere dönüştür
-            times = np.array(times)
-            values = np.array(values)
-            colors = np.array(colors)
+            if start_idx == 0:
+                # Tüm verileri yeniden oluştur
+                self.cached_times = np.array(new_times)
+                self.cached_values = np.array(new_values)
+                self.cached_colors = np.array(new_colors)
+            else:
+                # Yalnızca yeni verileri ekle
+                self.cached_times = np.concatenate((self.cached_times, new_times))
+                self.cached_values = np.concatenate((self.cached_values, new_values))
+                self.cached_colors = np.concatenate((self.cached_colors, new_colors))
             
-            # Sadece veri değiştiyse grafiği güncelle
-            if (len(times) != len(self.cached_times) or 
-                not np.array_equal(values, self.cached_values) or
-                not np.array_equal(colors, self.cached_colors)):
-                
-                self.cached_times = times
-                self.cached_values = values
-                self.cached_colors = colors
-                
-                # Çizgiyi güncelle (tüm noktaları birleştiren)
-                self.line_plot.setData(times, values)
-                
-                # Noktaları güncelle (renkli noktalar)
-                self.points_plot.setData(times, values, symbolBrush=colors)
+            # Grafiği güncelle
+            self.line_plot.setData(self.cached_times, self.cached_values)
+            self.points_plot.setData(self.cached_times, self.cached_values, symbolBrush=self.cached_colors)
 
     def closeEvent(self, e):
         # Timer güvenli kapatma
