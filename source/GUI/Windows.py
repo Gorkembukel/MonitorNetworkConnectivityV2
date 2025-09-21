@@ -606,6 +606,16 @@ class MainWindow(QMainWindow):
     def _hide_all(self, docks):
         for d in docks:
             d.hide()
+    def close_all_summaryWidget(self):
+        
+        """Scroll layout içindeki tüm client widget'ları siler"""
+        # Layout'taki tüm widget'ları al
+        for i in range(self.scroll_layout.count()):
+            widget = self.scroll_layout.itemAt(i).widget()
+            print(f"widget: {widget}")
+            if widget:
+                # Widget'ın deleteLater metodunu çağır
+                widget.deleteLater()
     def closeEvent(self, event):
         print("Uygulama kapanıyor, en son ki ip'ler txt'e aktarılıyor...")
           # ip.txt'ye kaydet
@@ -624,8 +634,12 @@ class MainWindow(QMainWindow):
                 print("ip.txt kaydedilemedi:", e)
 
         print("Uygulama kapanıyor, threadlerin kapanması bekleniyor")
+        print("client summary widgetlar kapanıyor")
+        self.close_all_summaryWidget()
+
         # Thread nesnelerini döngüyle durdur
         self.pingController.stop_All()
+        self.SSH_Client_Controller.close_all()
          # thread kapanmasını bekle
 
         event.accept()  # pencerenin kapanmasına izin ver

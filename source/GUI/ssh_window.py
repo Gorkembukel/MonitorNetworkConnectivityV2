@@ -590,7 +590,8 @@ class ClientWidget_summary(QtWidgets.QWidget):
         client_controller.remove_client(self.hostname)
         self.deleteLater()  # Schedule widget for deletion
         
-        
+    def closeEvent(self, event):
+        self.delete
 client_controller = Client_Controller()
 class SSH_Client_Window(QMainWindow):
     
