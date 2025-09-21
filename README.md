@@ -88,8 +88,8 @@ After building, you can run the application in one of two ways:
   - The beep will only work if the terminal permits it to "\a".
   - <img width="1256" height="808" alt="nmc-ping-menu open add-pings start_all rightClick menu  open graph" src="https://github.com/user-attachments/assets/4026bf16-a835-4436-bd4a-2b8f05c4fe53" />
   - <img width="1836" height="1046" alt="nmc-ping-menu open add-pings start_all rightClick menu  graph reset zoom" src="https://github.com/user-attachments/assets/85e596e1-1c2e-4abd-ae16-ffaba0b987eb" />
-  - You can use left click to zoom selected area or rigth click to changing scale
-**Iperf3**
+  - You can use left click to zoom selected area or rigth click to changing scale.
+## Iperf3
   - <img width="1113" height="773" alt="nmc-iperf-menu" src="https://github.com/user-attachments/assets/9922488f-a8d5-4812-a15e-2c5432b8e872" />
 
 ---
