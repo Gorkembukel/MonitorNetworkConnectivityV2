@@ -72,8 +72,8 @@ After building, you can run the application in one of two ways:
 ## How to Use
 
   **Ping**
-  - <img width="1113" height="785" alt="nmc-ping-menu" src="https://github.com/user-attachments/assets/c8c9f3ce-03e6-4702-b1cd-8a12b546e8b8" />:
-  -You can use Open Menu button to adding/deleting pings
+  - <img width="1113" height="785" alt="nmc-ping-menu" src="https://github.com/user-attachments/assets/c8c9f3ce-03e6-4702-b1cd-8a12b546e8b8" />
+  -You can use Open Menu button to adding/deleting pings.
   -Application will save your last added pings if list is not empy while closing it self.
 ---
 ## 📌 Notes
