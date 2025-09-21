@@ -60,7 +60,7 @@ class GraphWindow(QDialog):
         # QTimer ile otomatik güncelleme
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(10)  #TODO settingsen değiştirilebilir belki 1 saniyede bir güncelle
+        self.timer.start(500)  #TODO settingsen değiştirilebilir belki 1 saniyede bir güncelle
 
         self.update_plot()  # İlk çizim
 

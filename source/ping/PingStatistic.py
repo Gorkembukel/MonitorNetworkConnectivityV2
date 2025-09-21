@@ -7,26 +7,32 @@ import matplotlib.pyplot as plt
 import pyqtgraph as pg
 from pyqtgraph import PlotDataItem,BarGraphItem
 
-dict_of_data_keys = {# buradaki keyler tablodaki sütun başlıkları için kullanılacak. Ekleyeceğiniz veri varsa burada başlığını girerseniz grafik güncellenir
-            "target": "",            
-            "sent": "",
-            "received": "",
-            "failed": "",            
-            "Consecutive failed": "",
-            "Max Consecutive failed": "",
-            "fail rate": "",
-            "min rtt": "",
-            "avg rtt": "",            
-            "max rtt": "",
-            "Last failed on": "",
-            "Last success on": "",            
-            "jitter": "",
-            "last result": "",
-            "start time": "",
-            "rate of thread":"",
-            "avg rate of send ping in seconds":"",
-            "send total packet size":""
-        }
+from pathlib import Path
+
+path_of_this_module = Path(__file__).resolve().parent
+path_of_target_folder = path_of_this_module.parent.parent / "config" / "settings.txt"
+
+
+
+def load_data_keys_from_settings():
+    dict_of_data_keys = {}
+    if path_of_target_folder.exists():
+        try:
+            with open(path_of_target_folder, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if line.startswith("pingHeaders:"):
+                        # pingHeaders: "target";"sent";"received";...
+                        line = line[len("pingHeaders:"):].strip()
+                        keys = [x.strip().strip('"') for x in line.split(';')]
+                        for k in keys:
+                            if k:
+                                dict_of_data_keys[k] = ""
+                        break
+        except Exception as e:
+            print("settings.txt okunurken hata:", e)
+    return dict_of_data_keys
+    
+dict_of_data_keys = load_data_keys_from_settings()
 
 def get_data_keys():
         return dict_of_data_keys.keys()

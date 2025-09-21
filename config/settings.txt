@@ -1,0 +1,1 @@
+pingHeaders: "target";"sent";"received";"failed";"Consecutive failed";"Max Consecutive failed";"fail rate";"min rtt";"avg rtt";"max rtt";"Last failed on";"Last success on";"jitter";"last result";"start time";"rate of thread";"avg rate of send ping in seconds";"send total packet size"

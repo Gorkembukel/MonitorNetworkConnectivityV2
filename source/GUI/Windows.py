@@ -12,6 +12,9 @@ from PyQt5.QtCore import pyqtSignal,pyqtSlot,QTimer,Qt,QDateTime,QThread
 from PyQt5.QtWidgets import QMainWindow, QDockWidget,QAction,QTableWidgetItem,QDialog,QMessageBox
 
 #projenin kendi modülleri
+#Setting için
+from source.GUI.Settings import ReOrderPingTAbleHeaders
+
 #ip list penceresi
 from source.GUI.ip_list_menu import Accounts_list_window
 
@@ -578,13 +581,26 @@ class MainWindow(QMainWindow):
         # Ayırıcı + Hepsini Göster/Gizle
         self.ui.menuView.addSeparator()
 
-        show_all = QAction("Hepsini Göster", self)
+        show_all = QAction("Show All", self)
         show_all.triggered.connect(lambda: self._show_all(docks))
         self.ui.menuView.addAction(show_all)
 
-        hide_all = QAction("Hepsini Gizle", self)
+        hide_all = QAction("Hide All", self)
         hide_all.triggered.connect(lambda: self._hide_all(docks))
         self.ui.menuView.addAction(hide_all)
+
+        reorder_ping_header = QAction("Reorder Ping Table Header", self)
+        reorder_ping_header.triggered.connect(self._reorder_ping_table_header)
+        self.ui.menuView.addAction(reorder_ping_header)
+        
+    def _reorder_ping_table_header(self):
+        reorder_window = ReOrderPingTAbleHeaders(parent=self)
+        reorder_window.exec_()  # Modal olarak göster
+        # Eğer kullanıcı değişiklik yaptıysa, yeni header'ları al ve uygula
+        if reorder_window.result() == QDialog.Accepted:
+            self.set_table_headers()        # Header’ları güncelle
+            
+            self.update_ping_table() 
     @pyqtSlot(str)
     def remove_client_widget(self, hostname):
         print(f"[remove_client_widget]   sinyal geldi")
