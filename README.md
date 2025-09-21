@@ -98,7 +98,7 @@ After building, you can run the application in one of two ways:
   - You can use iperf3 -c with this section. If you need to open iperf3 server at remote you can use ssh with this applicaton. More at this later
 ---
   - <img width="1096" height="771" alt="nmc-iperf-menu add_iperfClient run" src="https://github.com/user-attachments/assets/8857ed9e-1167-4e51-9778-60418897fa74" />
-  -  You can use start all or rightclick menu
+  -  First right click desired client's row, use can start iperf client individually or start all button
 ---
 ---
 ## 📌 Notes
