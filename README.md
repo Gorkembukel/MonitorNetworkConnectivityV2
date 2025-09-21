@@ -69,7 +69,31 @@ After building, you can run the application in one of two ways:
    - CTRL + S for ssh login
    
 ---
+## How to Use<img width="1526" height="783" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient ping" src="https://github.com/user-attachments/assets/0cbfdf02-c086-41f2-8297-bb7049628668" />
+<img width="1120" height="798" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient liveshell" src="https://github.com/user-attachments/assets/867a4b34-6cf5-4444-868f-d22544eb7e09" />
+<img width="1709" height="812" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient graph server" src="https://github.com/user-attachments/assets/cd7db84f-6b9a-430c-94c4-8c099eb2a800" />
+<img width="1723" height="750" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient graph" src="https://github.com/user-attachments/assets/78507474-2536-4dea-afd4-d90c2bbfffdf" />
+<img width="1474" height="792" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient" src="https://github.com/user-attachments/assets/fe142d8e-22a2-4aee-9eaa-8626a87d6fd4" />
+<img width="1145" height="783" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient" src="https://github.com/user-attachments/assets/4a556d43-5e16-4a96-aab7-a0b9b599d060" />
+<img width="1459" height="768" alt="nmc-ssh giriş  ssh account managment open connect summary widget" src="https://github.com/user-attachments/assets/81ef75a7-9c0a-4e86-a93a-3e9baafb127e" />
+<img width="1363" height="797" alt="nmc-ssh giriş  ssh account managment open connect" src="https://github.com/user-attachments/assets/d4c3abfe-c6e6-4139-a7b6-56b1f9044bd9" />
+<img width="1366" height="801" alt="nmc-ssh giriş  ssh account managment open" src="https://github.com/user-attachments/assets/2951d7d5-8e1c-43bc-9aaa-1d2e8d58b25b" />
+<img width="1112" height="778" alt="nmc-ssh giriş" src="https://github.com/user-attachments/assets/663a357b-1a21-4236-8a2c-9246f74ff54c" />
+<img width="1256" height="808" alt="nmc-ping-menu open add-pings start_all rightClick menu  open graph" src="https://github.com/user-attachments/assets/82e9d4cd-a38f-44af-8327-bbedd7dfef98" />
+<img width="1836" height="1046" alt="nmc-ping-menu open add-pings start_all rightClick menu  graph reset zoom" src="https://github.com/user-attachments/assets/a518ad55-7baa-49e8-8de8-b9ec2b3a2674" />
+<img width="1001" height="703" alt="nmc-ping-menu open add-pings start_all rightClick menu" src="https://github.com/user-attachments/assets/614382c8-09c9-4c4a-8d8d-84272eff39d6" />
+<img width="1101" height="761" alt="nmc-ping-menu open add-pings start_all leftClick" src="https://github.com/user-attachments/assets/e74f1fcb-c9e9-46d0-b32b-2005cc5dfb2a" />
+<img width="1105" height="789" alt="nmc-ping-menu open add-pings start_all" src="https://github.com/user-attachments/assets/2badea9c-f67f-471c-95d8-eed9d5402ea4" />
+<img width="1110" height="773" alt="nmc-ping-menu open add-pings" src="https://github.com/user-attachments/assets/252010cf-a6b1-4a30-a16a-7b66272e9a0f" />
+<img width="1104" height="778" alt="nmc-ping-menu open" src="https://github.com/user-attachments/assets/1975fdea-0455-41b8-8300-7a83da49b2d5" />
+<img width="1113" height="785" alt="nmc-ping-menu" src="https://github.com/user-attachments/assets/11d521bd-b4ef-4abd-ba70-aec7e6166047" />
+<img width="1827" height="1020" alt="nmc-iperf-menu add_iperfClient run grafik grafik içi" src="https://github.com/user-attachments/assets/04de6fdf-b92d-47d9-89e7-d3b853fa6197" />
+<img width="1616" height="755" alt="nmc-iperf-menu add_iperfClient run grafik" src="https://github.com/user-attachments/assets/92e75bec-11b2-4c99-ad53-f7db18b54838" />
+<img width="1096" height="771" alt="nmc-iperf-menu add_iperfClient run" src="https://github.com/user-attachments/assets/8a3f652e-9c90-4058-9cae-a96c0f4c2869" />
+<img width="1129" height="778" alt="nmc-iperf-menu add_iperfClient" src="https://github.com/user-attachments/assets/52ada895-1930-414b-b5b8-bc285b9b3678" />
+<img width="1113" height="773" alt="nmc-iperf-menu" src="https://github.com/user-attachments/assets/dcc68446-54e2-477b-9cf2-e657e696ad99" />
 
+---
 ## 📌 Notes
 
 - When running the program using **`TEST.run`** (from the `dist/` folder), the application will create an `ip.txt` file **next to the `TEST.run` executable** to store your added ping targets.  
