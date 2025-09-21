@@ -76,7 +76,7 @@ After building, you can run the application in one of two ways:
   - You can use Open Menu button to adding/deleting pings.
   - Application will save your last added pings if list is not empy while closing it self.
   - <img width="1104" height="778" alt="nmc-ping-menu open" src="https://github.com/user-attachments/assets/811beeaa-06a9-4a97-a9cb-7b9e0187bba5" />
-  - You can add or delete ip's at second step. Change will applies to table at left side.
+  - You can add or delete ip's to ip section.For sending pings with out a time constrain you can use loop button. Change will applies to table at left side.
 
 ---
 ## 📌 Notes
