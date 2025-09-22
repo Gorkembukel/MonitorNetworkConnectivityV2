@@ -107,6 +107,26 @@ After building, you can run the application in one of two ways:
   -  At number one, you can see white dash lines, it implies packet sending start with there. If you use same client more than once, every attempt drawer white line.
   - Two and three are self explanatory
 ---
+## SSH
+  - <img width="1112" height="778" alt="nmc-ssh giriş" src="https://github.com/user-attachments/assets/b4a10ca5-36e9-415d-bd9f-04e334c06620" />
+  - If you want to connect a ssh server just for one, you can use number two (CTRL + S). If other wise, Number one will (CTRL + M) open window that you can saves ip's for later.
+---
+  - <img width="1366" height="801" alt="nmc-ssh giriş  ssh account managment open" src="https://github.com/user-attachments/assets/243cff7c-eac2-41af-a394-2bbefe12e600" />
+  - Ass you can see, saved ip's in config/ip_list.txt will shows up.
+  - You can click open menu button for acces more option
+  - You can delete existing ip or star a connection to ssh server with those parameters
+---
+  - <img width="1363" height="797" alt="nmc-ssh giriş  ssh account managment open connect" src="https://github.com/user-attachments/assets/e70a6230-c04a-4982-ab12-cd652ab357ec" />
+  - If you want to see connected ssh server, you can click view, and made visible that area.
+---
+  - <img width="1459" height="768" alt="nmc-ssh giriş  ssh account managment open connect summary widget" src="https://github.com/user-attachments/assets/ad610d95-f6ce-4a46-b33b-8e19a058d858" />
+  - Connected servers will be listed up like that
+  - X is you know, More menu will you will learn
+---
+  - <img width="1145" height="783" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient" src="https://github.com/user-attachments/assets/9b32cd4b-5795-4863-862f-5ae5f28a8c43" />
+  - More menu will open this window. With this, you can use iperf3,ping or live shell in remote ssh server
+
+---
 ## 📌 Notes
 
 - When running the program using **`TEST.run`** (from the `dist/` folder), the application will create an `ip.txt` file **next to the `TEST.run` executable** to store your added ping targets.  
