@@ -66,7 +66,7 @@ class PingThread(threading.Thread):
                         
                         rtt = result.avg_rtt 
                         
-                        self.stats.add_result(rtt, time.time() + 10800, payloadSize = self.kwargs["payload_size"] +42) #    istanbula göre UTC 3.    +42 header için
+                        self.stats.add_result(rtt, time.time() , payloadSize = self.kwargs["payload_size"] +42) #   + 10800  istanbula göre UTC 3.    +42 header için
                         
                         #ses için
            
@@ -74,12 +74,12 @@ class PingThread(threading.Thread):
                             print('\a')
                         
                     else:
-                        self.stats.add_result(None, time.time() + 10800) #timeout burada saniyeden ms'ye çevirilir
+                        self.stats.add_result(None, time.time() ) # + 10800 timeout burada saniyeden ms'ye çevirilir
                         
                     
                 except Exception as e:
                     
-                    self.stats.add_result(None, time.time() + 10800)
+                    self.stats.add_result(None, time.time()) # + 10800
                 
                 
                 sleep_time = self.interval_ms# threadin tam olarak interval kadar uyuması için ping atma süresi kadar çıkartıyorum çünkü zaten o kadar zaman geçiyo             

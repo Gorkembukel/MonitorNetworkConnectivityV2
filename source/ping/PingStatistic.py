@@ -7,26 +7,32 @@ import matplotlib.pyplot as plt
 import pyqtgraph as pg
 from pyqtgraph import PlotDataItem,BarGraphItem
 
-dict_of_data_keys = {# buradaki keyler tablodaki sütun başlıkları için kullanılacak. Ekleyeceğiniz veri varsa burada başlığını girerseniz grafik güncellenir
-            "target": "",            
-            "sent": "",
-            "received": "",
-            "failed": "",            
-            "Consecutive failed": "",
-            "Max Consecutive failed": "",
-            "fail rate": "",
-            "min rtt": "",
-            "avg rtt": "",            
-            "max rtt": "",
-            "Last failed on": "",
-            "Last success on": "",            
-            "jitter": "",
-            "last result": "",
-            "start time": "",
-            "rate of thread":"",
-            "avg rate of send ping in seconds":"",
-            "send total packet size":""
-        }
+from pathlib import Path
+
+path_of_this_module = Path(__file__).resolve().parent
+path_of_target_folder = path_of_this_module.parent.parent / "config" / "settings.txt"
+
+
+
+def load_data_keys_from_settings():
+    dict_of_data_keys = {}
+    if path_of_target_folder.exists():
+        try:
+            with open(path_of_target_folder, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if line.startswith("pingHeaders:"):
+                        # pingHeaders: "target";"sent";"received";...
+                        line = line[len("pingHeaders:"):].strip()
+                        keys = [x.strip().strip('"') for x in line.split(';')]
+                        for k in keys:
+                            if k:
+                                dict_of_data_keys[k] = ""
+                        break
+        except Exception as e:
+            print("settings.txt okunurken hata:", e)
+    return dict_of_data_keys
+    
+dict_of_data_keys = load_data_keys_from_settings()
 
 def get_data_keys():
         return dict_of_data_keys.keys()
@@ -238,35 +244,6 @@ class PingStats:
             for t, r in zip(self._timeStamp_for_rttList, self._rttList)
             if t is not None and r is not None
         ]
-
-    @staticmethod
-    def show_all():
-        """Elde bekleyen tüm grafikleri aynı anda gösterir"""
-        plt.show()
-    
-    def pygraph(self):
-        #valid_rtt_list = [r if r is not None else -200 for r in self._rttList]
-        valid_timeList = [t for t in self._timeStamp_for_rttList if t is not None]
-        if not valid_timeList:
-            print(f"[{self._target}] No Time data")
-            return
-        """if not valid_rtt_list:
-            print(f"[{self._target}] Geçerli RTT verisi yok.")
-            return"""
-        
-        pg.plot(self._rttList, pen='g', symbol='o', title=f"RTT for {self._target}").setYRange(-220, self.timeOut)
-
-    """def get_rtt_curve(self):
-        data = self.get_time_series_data()
-        
-        
-        if not data:
-            return PlotDataItem(x=0, y=0, pen='g', symbol='o', name="RTT Trend")
-
-        
-        x, y = zip(*data)
-        return PlotDataItem(x=x, y=y, pen='g', symbol='o', name="RTT Trend")"""
-    
     def _append_plot_point(self, t, r):
         if t is None:
             return
@@ -276,69 +253,6 @@ class PingStats:
         self._plot_brushes.append(self._b_red if is_to else self._b_green)
         self._plot_pens.append(self._p_red if is_to else self._p_green)
         self._plot_len += 1
-
-    def get_plot_arrays(self):
-        """GraphWindow sadece bunu çağırır."""
-        return self._plot_x, self._plot_y, self._plot_brushes, self._plot_pens
-    def get_plot_len(self):
-        return self._plot_len
-
-    def get_rtt_curve(self):
-        
-        if not self._rttList or not self._timeStamp_for_rttList:
-            return pg.PlotDataItem(x=[], y=[], pen='g', symbol='o', name="RTT Trend")
-
-        x, y, brushes, pens = [], [], [], []
-
-        red_b = pg.mkBrush('r'); green_b = pg.mkBrush('g')
-        red_p = pg.mkPen('r');   green_p = pg.mkPen('g')
-
-        for t, r in zip(self._timeStamp_for_rttList, self._rttList):
-            if t is None:
-                continue
-            is_timeout = (r is None) or (r >= self.timeOut)
-            x.append(t)
-            y.append(self.timeOut if is_timeout else r)
-            brushes.append(red_b if is_timeout else green_b)
-            pens.append(red_p if is_timeout else green_p)
-
-        return pg.PlotDataItem(
-            x=x, y=y,
-            pen='b',
-            symbol='o', symbolSize=8,
-            symbolBrush=brushes,
-            symbolPen=pens,
-            name="RTT Trend"
-        )
-    
-        
-    def get_jitter_bar(self):
-        
-        return BarGraphItem(x=[0], height=[self.jitter], width=0.6, brush='b')
-    """def get_success_bar(self):
-        from pyqtgraph import BarGraphItem
-        success = self.received
-        fail = self.failed
-        return BarGraphItem(x=[0, 1], height=[success, fail], width=0.6, brushes=['g', 'r'])"""
-    def get_success_bar(self):
-        from pyqtgraph import BarGraphItem
-        total = self.sent
-        if total == 0:
-            return BarGraphItem(x=[0, 1], height=[0, 0], width=0.6, brushes=['g', 'r'])
-
-        success_pct = self.received / total * 100
-        fail_pct = self.failed / total * 100
-
-        return BarGraphItem(x=[0, 1], height=[success_pct, fail_pct], width=0.6, brushes=['g', 'r'])
-    def get_min_max_lines(self):
-        from pyqtgraph import InfiniteLine
-        lines = []
-        if self.min_rtt is not None:
-            lines.append(InfiniteLine(pos=self.min_rtt, angle=0, pen='y'))
-        if self.max_rtt is not None:
-            lines.append(InfiniteLine(pos=self.max_rtt, angle=0, pen='m'))
-        return lines
-
     def convert_rightUnit(self, sendTotalByte:int) -> str:
         if sendTotalByte > 1024*1024:
             return f"{round(sendTotalByte/(1024*1024),2)} MByte "    

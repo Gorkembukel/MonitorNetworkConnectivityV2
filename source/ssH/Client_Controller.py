@@ -26,6 +26,7 @@ class ClientWrapper:
         self.__username = username
         self.__password = password
         self.__port = port
+        self.is_connected: bool = False# bu alan ssh_window dan belirlenecek.
         self.stdobject = STD_object(self,"utf-8",2000)
 
         # Not: Client ctor’unun (hostname, username, password, port, osType) aldığını varsaydın; öyle bıraktım.
@@ -55,10 +56,10 @@ class ClientWrapper:
     def username(self) -> str:
         return self.__username
 
-    @property
+    
     def is_connected(self) -> bool:
         # Senin Client içinde is_connect alanının olduğuna göre:
-        return getattr(self.client, "is_connect", False)
+        return self.client.is_connect()
 
     def get_stdobject(self):
         return self.stdobject
@@ -98,12 +99,15 @@ class ClientWrapper:
 
 
 
-    def open_iperf3(self, **kwargs) ->STD_object:
-        name ="iperf"
-        base_cmd = self.executor.comand_Iperf3(**kwargs)        
-        
-        stdout,stderr = self._run_cmd(base_cmd)
-        self.stdobject.register_stream(name,stdout=stdout,stderr=stderr)
+    def open_iperf3(self, **kwargs) -> STD_object:
+        role = kwargs.get("role", "client")
+        if role == "client":
+            name = "iperf_client"
+        else:
+            name = "iperf_server"
+        base_cmd = self.executor.comand_Iperf3(**kwargs)
+        stdout, stderr = self._run_cmd(base_cmd)
+        self.stdobject.register_stream(name, stdout=stdout, stderr=stderr)
         self.stdobject.start(name)
         return self.stdobject
     
@@ -115,6 +119,8 @@ class ClientWrapper:
         self.stdobject.register_stream(name,stdout=stdout,stderr=stderr)
         self.stdobject.start(name)
         return self.stdobject
+    def take_live_shell_channel(self):
+        return self.client.invoke_shell()
     
 class SingletonMeta(type):# Controller'ı singleton yapmak için
     """

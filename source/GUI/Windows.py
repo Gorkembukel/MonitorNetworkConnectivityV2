@@ -12,6 +12,11 @@ from PyQt5.QtCore import pyqtSignal,pyqtSlot,QTimer,Qt,QDateTime,QThread
 from PyQt5.QtWidgets import QMainWindow, QDockWidget,QAction,QTableWidgetItem,QDialog,QMessageBox
 
 #projenin kendi modülleri
+#Setting için
+from source.GUI.Settings import ReOrderPingTAbleHeaders
+
+#ip list penceresi
+from source.GUI.ip_list_menu import Accounts_list_window
 
 #Iperf ile alakalı
 from source.Iperf.subproces_for_iperf import valid_fields
@@ -30,7 +35,13 @@ from QTDesigns.Change_parameters import Ui_Dialog_changeParameter
 from source.ping.PingStatistic import get_data_keys
 from source.ping.PingController import PingController,PingTask
 from source.GUI.Ping_Graph import GraphWindow
-
+class LeftClickMenu(QtWidgets.QMenu):
+    def mouseReleaseEvent(self, event):
+        # sadece sol tıkla çalışsın
+        if event.button() == Qt.LeftButton:
+            super().mouseReleaseEvent(event)
+        else:
+            event.ignore()
 class ChangeParameterWindow(QDialog):
     def __init__(self, parent= None, task:PingTask = None):
         super().__init__(parent)
@@ -93,6 +104,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         #MainWindow ile alakalı kurulumlar
+        self.setWindowTitle("Network Connectivity Monitor Window")
         self._build_view_menu()#View menu'u doldurur
 
         
@@ -104,6 +116,7 @@ class MainWindow(QMainWindow):
         self.ui.actionAdd_iperf_Client.triggered.connect(self.change_tabTo_iperf)
         self.ui.actionAdd_ping.triggered.connect(self.change_tabTo_ping)
         self.ui.actionAdd_SSH_Client.triggered.connect(self.open_ssh_loginMenu)
+        self.ui.actionIP_List.triggered.connect(self.open_ip_list)
             #Iperf için önemli
         self.iperf_headers = self.application.get_tablewidget_iperf_header()
         self.valid_fields = valid_fields
@@ -210,7 +223,19 @@ class MainWindow(QMainWindow):
         def __delete__(self):
             print(f"[QThread_ping içi]    bu thread kapandı")
 
-    
+    def open_ip_list(self):
+        
+        # 1) Eğer daha önce oluşturulmamışsa oluştur
+        if not hasattr(self, 'accounts_window') or self.accounts_window is None:
+            
+            self.accounts_window = Accounts_list_window(parent=self)
+
+        # 2) Pencereyi gizlemek yerine sadece göster
+        if not self.accounts_window.isVisible():
+            self.accounts_window.show()
+        self.accounts_window.raise_()
+        self.accounts_window.activateWindow()
+
     def start_iperf(self,hostName):
         self.iperfController.start(hostName)
 
@@ -327,9 +352,7 @@ class MainWindow(QMainWindow):
         if not hasattr(self, 'loginMenu') or self.loginMenu is None:
             self.loginMenu = SSH_login(self)
         
-        # Pencere zaten kapatılmışsa, yeniden oluştur
-        if not self.loginMenu.isVisible():
-            self.loginMenu = SSH_login(self)
+        
 
         # Pencereyi göster ve öne getir
         self.loginMenu.show()
@@ -348,7 +371,7 @@ class MainWindow(QMainWindow):
         self.ui.scrollArea.verticalScrollBar().setValue(
             self.ui.scrollArea.verticalScrollBar().maximum()
         )
-
+        return  client_widget
     
     #Ping için ##########################################################################3333
     def startAll(self):
@@ -408,7 +431,7 @@ class MainWindow(QMainWindow):
                 header_item = self.ui.tableWidget_ping.item(row, 0)
                 address = header_item.text() if header_item else None
 
-                menu = QtWidgets.QMenu()
+                menu = LeftClickMenu()
                 if self.pingController.is_alive_ping(address=address):
                     menu.addAction("Yeniden Başlat", lambda: self.restart_ping(address=address))
                 else:
@@ -442,7 +465,7 @@ class MainWindow(QMainWindow):
                 header_item = self.ui.tableWidget_iperfClient.item(row, 0)
                 hostName = header_item.text() if header_item else None
 
-                menu = QtWidgets.QMenu()
+                menu = LeftClickMenu()
                 menu.addAction("Iperf başlat", lambda: self.start_iperf(hostName))
                 menu.addAction("Grafik", lambda: self.open_graph_iperf(hostName))
                 menu.addAction("Sil", lambda: self.delete_client(hostName))
@@ -565,13 +588,26 @@ class MainWindow(QMainWindow):
         # Ayırıcı + Hepsini Göster/Gizle
         self.ui.menuView.addSeparator()
 
-        show_all = QAction("Hepsini Göster", self)
+        show_all = QAction("Show All Docks", self)
         show_all.triggered.connect(lambda: self._show_all(docks))
         self.ui.menuView.addAction(show_all)
 
-        hide_all = QAction("Hepsini Gizle", self)
+        hide_all = QAction("Hide All Docks", self)
         hide_all.triggered.connect(lambda: self._hide_all(docks))
         self.ui.menuView.addAction(hide_all)
+        self.ui.menuView.addSeparator()
+        reorder_ping_header = QAction("Reorder Ping Table Header", self)
+        reorder_ping_header.triggered.connect(self._reorder_ping_table_header)
+        self.ui.menuView.addAction(reorder_ping_header)
+        
+    def _reorder_ping_table_header(self):
+        reorder_window = ReOrderPingTAbleHeaders(parent=self)
+        reorder_window.exec_()  # Modal olarak göster
+        # Eğer kullanıcı değişiklik yaptıysa, yeni header'ları al ve uygula
+        if reorder_window.result() == QDialog.Accepted:
+            self.set_table_headers()        # Header’ları güncelle
+            
+            self.update_ping_table() 
     @pyqtSlot(str)
     def remove_client_widget(self, hostname):
         print(f"[remove_client_widget]   sinyal geldi")
@@ -593,6 +629,16 @@ class MainWindow(QMainWindow):
     def _hide_all(self, docks):
         for d in docks:
             d.hide()
+    def close_all_summaryWidget(self):
+        
+        """Scroll layout içindeki tüm client widget'ları siler"""
+        # Layout'taki tüm widget'ları al
+        for i in range(self.scroll_layout.count()):
+            widget = self.scroll_layout.itemAt(i).widget()
+            print(f"widget: {widget}")
+            if widget:
+                # Widget'ın deleteLater metodunu çağır
+                widget.deleteLater()
     def closeEvent(self, event):
         print("Uygulama kapanıyor, en son ki ip'ler txt'e aktarılıyor...")
           # ip.txt'ye kaydet
@@ -611,8 +657,12 @@ class MainWindow(QMainWindow):
                 print("ip.txt kaydedilemedi:", e)
 
         print("Uygulama kapanıyor, threadlerin kapanması bekleniyor")
+        print("client summary widgetlar kapanıyor")
+        self.close_all_summaryWidget()
+
         # Thread nesnelerini döngüyle durdur
         self.pingController.stop_All()
+        self.SSH_Client_Controller.close_all()
          # thread kapanmasını bekle
 
         event.accept()  # pencerenin kapanmasına izin ver

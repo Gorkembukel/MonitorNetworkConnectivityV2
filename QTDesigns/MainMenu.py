@@ -443,9 +443,15 @@ class Ui_MainWindow(object):
         self.actionAdd_iperf_Client = QtWidgets.QAction(MainWindow)
         self.actionAdd_iperf_Client.setIcon(icon5)
         self.actionAdd_iperf_Client.setObjectName("actionAdd_iperf_Client")
+        self.actionIP_List = QtWidgets.QAction(MainWindow)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(":/icons/icons/git-pull-request.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionIP_List.setIcon(icon7)
+        self.actionIP_List.setObjectName("actionIP_List")
         self.menuBar.addAction(self.menuView.menuAction())
         self.toolBar.addAction(self.actionAdd_ping)
         self.toolBar_2.addAction(self.actionAdd_iperf_Client)
+        self.toolBar_addlogin.addAction(self.actionIP_List)
         self.toolBar_addlogin.addAction(self.actionAdd_SSH_Client)
 
         self.retranslateUi(MainWindow)
@@ -510,4 +516,6 @@ class Ui_MainWindow(object):
         self.actionAdd_iperf_Client.setText(_translate("MainWindow", "Add iperf Client"))
         self.actionAdd_iperf_Client.setToolTip(_translate("MainWindow", "add iperf client (CTRL + F)"))
         self.actionAdd_iperf_Client.setShortcut(_translate("MainWindow", "Ctrl+F"))
+        self.actionIP_List.setText(_translate("MainWindow", "SSH ip list (CTRL + M)"))
+        self.actionIP_List.setShortcut(_translate("MainWindow", "Ctrl+M"))
 import resources_rc
