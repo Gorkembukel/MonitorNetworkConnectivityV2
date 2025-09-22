@@ -1,6 +1,9 @@
 #!/bin/bash
-
+sudo apt update
 sudo apt install python3-pip
+sudo apt install python3.10-venv
+
+
 
 # Sanal ortam oluştur
 python3 -m venv .venv
