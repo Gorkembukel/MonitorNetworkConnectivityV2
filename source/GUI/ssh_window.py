@@ -506,6 +506,7 @@ class ClientWidget_summary(QtWidgets.QWidget):
         self.username = username
         self.clientWrapper = clientWrapper
         self.status_thread = None
+        self.ssh_window = None 
         self.testResultWrapper = TestResult_Wrapper_sub(self.hostname)
         
         print(f"[client summary] clientwrapper { self.clientWrapper}")
@@ -577,8 +578,21 @@ class ClientWidget_summary(QtWidgets.QWidget):
             if self.clientWrapper:
                 self.ui.label_status.setText("⚪ Client Yok")
     def open_sshClient(self):
-        self.window = SSHClient(self.testResultWrapper,hostname=self.hostname, user=self.username, clientWrapper=self.clientWrapper)
-        self.window.show()
+          
+        # Eğer pencere zaten açıksa sadece öne getir
+        if self.ssh_window is not None and self.ssh_window.isVisible():
+            self.ssh_window.raise_()
+            self.ssh_window.activateWindow()
+            return
+
+        # Yoksa yeni pencere oluştur
+        self.ssh_window = SSHClient(
+            self.testResultWrapper,
+            hostname=self.hostname,
+            user=self.username,
+            clientWrapper=self.clientWrapper
+        )
+        self.ssh_window.show()
     def delete(self):
     # Thread varsa durdur
         if hasattr(self, 'status_thread'):
