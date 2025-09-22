@@ -58,7 +58,7 @@ After building, you can run the application in one of two ways:
      ```
    - <img width="1632" height="327" alt="distro" src="https://github.com/user-attachments/assets/71d4efdb-8d40-42df-bd99-d76e93671a74" />
    - <img width="475" height="269" alt="distro" src="https://github.com/user-attachments/assets/e3a92653-043e-4fa1-bdd3-f77600fe0a52" />
-
+   -  Benefits of this is you can move TEST.run anywhere you want
 2. **Start Script (With Terminal Open)  (Recommended)**
    - From the main project directory, run:  
      ```bash
