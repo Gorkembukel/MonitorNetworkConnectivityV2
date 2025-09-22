@@ -98,8 +98,14 @@ After building, you can run the application in one of two ways:
   - You can use iperf3 -c with this section. If you need to open iperf3 server at remote you can use ssh with this applicaton. More at this later
 ---
   - <img width="1096" height="771" alt="nmc-iperf-menu add_iperfClient run" src="https://github.com/user-attachments/assets/8857ed9e-1167-4e51-9778-60418897fa74" />
-  -  First right click desired client's row, use can start iperf client individually or start all button
+  -  First right click desired client's row, user can start iperf client individually or start all button
 ---
+  - <img width="1616" height="755" alt="nmc-iperf-menu add_iperfClient run grafik" src="https://github.com/user-attachments/assets/04d841fa-56ef-4685-a4df-06c4740cb85a" />
+  - You can use Grafik button to open graph window
+---
+  - <img width="1827" height="1020" alt="nmc-iperf-menu add_iperfClient run grafik grafik içi" src="https://github.com/user-attachments/assets/8571dcb8-8c99-440d-b587-5c9c0e3ea385" />
+  -  At number one, you can see white dash lines, it implies packet sending start with there. If you use same client more than once, every attempt drawer white line.
+  - Two and three are self explanatory
 ---
 ## 📌 Notes
 
