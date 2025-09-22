@@ -516,6 +516,6 @@ class Ui_MainWindow(object):
         self.actionAdd_iperf_Client.setText(_translate("MainWindow", "Add iperf Client"))
         self.actionAdd_iperf_Client.setToolTip(_translate("MainWindow", "add iperf client (CTRL + F)"))
         self.actionAdd_iperf_Client.setShortcut(_translate("MainWindow", "Ctrl+F"))
-        self.actionIP_List.setText(_translate("MainWindow", "IP List"))
+        self.actionIP_List.setText(_translate("MainWindow", "SSH ip list (CTRL + M)"))
         self.actionIP_List.setShortcut(_translate("MainWindow", "Ctrl+M"))
 import resources_rc

@@ -1043,7 +1043,7 @@
      <normaloff>:/icons/icons/git-pull-request.svg</normaloff>:/icons/icons/git-pull-request.svg</iconset>
    </property>
    <property name="text">
-    <string>IP List</string>
+    <string>SSH ip list (CTRL + M)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>

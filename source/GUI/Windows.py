@@ -35,7 +35,13 @@ from QTDesigns.Change_parameters import Ui_Dialog_changeParameter
 from source.ping.PingStatistic import get_data_keys
 from source.ping.PingController import PingController,PingTask
 from source.GUI.Ping_Graph import GraphWindow
-
+class LeftClickMenu(QtWidgets.QMenu):
+    def mouseReleaseEvent(self, event):
+        # sadece sol tıkla çalışsın
+        if event.button() == Qt.LeftButton:
+            super().mouseReleaseEvent(event)
+        else:
+            event.ignore()
 class ChangeParameterWindow(QDialog):
     def __init__(self, parent= None, task:PingTask = None):
         super().__init__(parent)
@@ -425,7 +431,7 @@ class MainWindow(QMainWindow):
                 header_item = self.ui.tableWidget_ping.item(row, 0)
                 address = header_item.text() if header_item else None
 
-                menu = QtWidgets.QMenu()
+                menu = LeftClickMenu()
                 if self.pingController.is_alive_ping(address=address):
                     menu.addAction("Yeniden Başlat", lambda: self.restart_ping(address=address))
                 else:
@@ -459,7 +465,7 @@ class MainWindow(QMainWindow):
                 header_item = self.ui.tableWidget_iperfClient.item(row, 0)
                 hostName = header_item.text() if header_item else None
 
-                menu = QtWidgets.QMenu()
+                menu = LeftClickMenu()
                 menu.addAction("Iperf başlat", lambda: self.start_iperf(hostName))
                 menu.addAction("Grafik", lambda: self.open_graph_iperf(hostName))
                 menu.addAction("Sil", lambda: self.delete_client(hostName))
