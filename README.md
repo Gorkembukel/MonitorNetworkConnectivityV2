@@ -125,7 +125,21 @@ After building, you can run the application in one of two ways:
 ---
   - <img width="1145" height="783" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient" src="https://github.com/user-attachments/assets/9b32cd4b-5795-4863-862f-5ae5f28a8c43" />
   - More menu will open this window. With this, you can use iperf3,ping or live shell in remote ssh server
-
+---
+ - <img width="1474" height="792" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient" src="https://github.com/user-attachments/assets/10e926e1-f7d8-41e3-9f09-6c28afc19aac" />
+ - Iperf parameters lies like that. Client role and server role will open diffrent tabs for ssh servers terminal output.
+---
+ - <img width="1723" height="750" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient graph" src="https://github.com/user-attachments/assets/0940909d-891a-43d1-aec8-a985a434dc10" />
+ - If you create iperf client, it will looks like this, you can use Open graph button for that clients iperf data
+---
+  - <img width="1709" height="812" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient iperfClient graph server" src="https://github.com/user-attachments/assets/a25bfa08-ad16-496e-9200-2e58258f6b1f" />
+  - Iperf server 
+---
+ - <img width="1120" height="798" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient liveshell" src="https://github.com/user-attachments/assets/e0c835d8-5125-4fcd-ba24-bcc05c43e102" />
+ - First, open live shell, write your command at the bottom and send it. I don't recommend to use nano command with this.
+---
+  - <img width="1526" height="783" alt="nmc-ssh giriş  ssh account managment open connect summary widget sshclient ping" src="https://github.com/user-attachments/assets/491b73cc-fa1f-4e50-abd5-b66aad182c91" />
+  
 ---
 ## 📌 Notes
 
